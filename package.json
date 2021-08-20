@@ -1,6 +1,6 @@
 {
   "name": "@chngl/jellojs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A visualization component to tell interactive data stories",
   "main": "index.min.js",
   "scripts": {
