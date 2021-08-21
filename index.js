@@ -13,7 +13,7 @@ class Jello {
    *
    * @param {*} container the containing div
    * @param {*} data the list of entities to visualize in the format of {id, attribute_A, attribute_B, ...}
-   * @param {*} options available settings {clusterBy, colorBy, sortBy...}
+   * @param {*} options available settings {clusterByDim, colorByDim, sortSetting...}
    */
   constructor(container, data, options) {
     // make sure to clear the container first
@@ -29,7 +29,10 @@ class Jello {
     this.width = container.offsetWidth;
     this.height = container.offsetHeight;
     this.data = data;
+    this.options = options;
 
+    // this stores the reference to the circles in circleDiv
+    this.circles = null;
     // these vars stores the x, y, r, color etc properties for the circles/clusters/sortLabels
     this.cirlcesProperty = {};
     this.clustersProperty = null;
@@ -41,20 +44,19 @@ class Jello {
         r: 0,
         color: DEFAULT_COLOR,
         imgURL: null,
+        label: null,
         display: true,
+        _data: entry,
       }
     });
 
-    // this stores the reference to the circles in circleDiv
-    this.circles = null;
-
-    const { clusterBy, colorBy, sizeBy, filterBy, sortBy, displayImageBy } = options;
-    this.setClusterBy(clusterBy);
-    this.setColorBy(colorBy);
-    this.setSizeBy(sizeBy);
-    this.setFilterBy(filterBy);
-    this.setSortBy(sortBy);
-    this.setDisplayImageBy(displayImageBy);
+    this._initSettings();
+    this.onClick = this.options.onClick;
+    this.onMouseover = this.options.onMouseover;
+    this.onCanvasClick = this.options.onCanvasClick;
+    this.container.addEventListener("click", (event) => {
+      this.onCanvasClick && this.onCanvasClick(event);
+    });
   }
 
   render() {
@@ -62,51 +64,70 @@ class Jello {
     this._renderCluster();
     this._renderSortLabels();
     this._renderCirles();
-  }
-
-  setColorBy(dim) {
-    this.colorBy = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
     return this;
   }
 
-  setSizeBy(dim) {
-    this.sizeBy = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
+  updateWidthHeight() {
+    this.width = this.container.offsetWidth;
+    this.height = this.container.offsetHeight;
+  }
+
+  labelBy(dim) {
+    this.labelByDim = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
+    if (this.labelByDim !== null) {
+      this.circleDiv.innerHTML = '';
+      this.circles = null;
+      this.displayImageByDim = null;
+    } else {
+      this.circleDiv.innerHTML = '';
+      this.circles = null;
+    }
     return this;
   }
 
-  setClusterBy(dim) {
-    this.clusterBy = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
-    this.sortBy = null;
+  colorBy(dim) {
+    this.colorByDim = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
+    return this;
+  }
+
+  sizeBy(dim) {
+    this.sizeByDim = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
+    return this;
+  }
+
+  clusterBy(dim) {
+    this.clusterByDim = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
+    this.sortSetting = null;
     return this;
   }
 
   /**
    *
-   * @param {*} dimValues  {dim: 'xxx', values: ['xxx', ...]}
+   * @param {*} filters  {dim: 'xxx', values: ['xxx', ...]}
    * @returns
    */
-  setFilterBy(dimValues) {
+  filterBy(filters) {
     const sanitized = {};
-    for (let dim in dimValues) {
+    for (let dim in filters) {
       const sanitizedDim = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
       if (sanitizedDim !== null) {
-        sanitized[dim] = dimValues[dim];
+        sanitized[dim] = filters[dim];
       }
     }
-    this.filterBy = Object.keys(sanitized).length > 0 ? sanitized : null;
+    this.filters = Object.keys(sanitized).length > 0 ? sanitized : null;
     return this;
   }
 
   /**
    *
-   * @param {*} setting {dim: 'xxx', order: 'asc' | 'desc'}
+   * @param {*} setting {dim: 'valuation', order: 'asc' | 'desc'}
    * @returns
    */
-  setSortBy(setting) {
+  sortBy(setting) {
     const {dim} = setting != null ? setting : {};
     const sanitized = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
-    this.sortBy = sanitized !== null ? setting : null;
-    this.clusterBy = null;
+    this.sortSetting = sanitized !== null ? setting : null;
+    this.clusterByDim = null;
     return this;
   }
 
@@ -116,14 +137,32 @@ class Jello {
    * When a displayImageBy dimension is set, colorBy is not going to work
    * @returns
    */
-  setDisplayImageBy(dim) {
-    this.displayImageBy = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
-    if (this.displayImageBy !== null) {
-      this.colorBy = null;
+  displayImageBy(dim) {
+    this.displayImageByDim = this._sanitizeDimension(dim, this._getWarnningMsg(dim));
+    if (this.displayImageByDim !== null) {
+      this.circleDiv.innerHTML = '';
+      this.circles = null;
+      this.colorByDim = null;
+      this.labelByDim = null;
     }
     return this;
   }
 
+  reset() {
+    this._initSettings();
+    return this;
+  }
+
+  _initSettings() {
+    const { clusterByDim, colorByDim, sizeByDim, filters, sortSetting, displayImageByDim, labelByDim } = this.options;
+    this.clusterBy(clusterByDim);
+    this.colorBy(colorByDim);
+    this.labelBy(labelByDim)
+    this.sizeBy(sizeByDim);
+    this.filterBy(filters);
+    this.sortBy(sortSetting);
+    this.displayImageBy(displayImageByDim);
+  }
   /**
    * when render the cluster layout, we need to render the cluster circle and label
    */
@@ -134,7 +173,7 @@ class Jello {
       // render cluster circle before cluster label to make sure labels are on top
       for (let id in this.clustersProperty) {
         const {x, y, r} = this.clustersProperty[id];
-        const circle = this._createCircle(x, y, r);
+        const circle = this._createCircle(null, x, y, r);
         this.clusterDiv.appendChild(circle);
         anime({
           targets: [circle],
@@ -164,7 +203,6 @@ class Jello {
     if (this.sortLabelProperty && Object.keys(this.sortLabelProperty).length) {
       for (let id in this.sortLabelProperty) {
         const {x, y, width, txt} = this.sortLabelProperty[id];
-        console.log(txt);
         const text = this._createText(x, y, width, 10, txt, 1);
         this.sortLabelDiv.appendChild(text);
         anime({
@@ -185,8 +223,9 @@ class Jello {
     if (this.circles === null) {
       this.circles = {};
       this.data.forEach(entry => {
-        const {x, y, r, color, imgURL} = this.cirlcesProperty[entry.id];
-        const circle = this._createCircle(x, y, r, color, imgURL);
+        const {_data, x, y, r, color, imgURL, label, display} = this.cirlcesProperty[entry.id];
+        const radius = display ? r : 0;
+        const circle = this._createCircle(_data, x, y, radius, color, imgURL, label);
         this.circleDiv.appendChild(circle);
         this.circles[entry.id] = circle;
       });
@@ -223,9 +262,8 @@ class Jello {
     return `${dim} is not valid property. It will not take any effect.`;
   }
 
-  _createCircle(x, y, r, color, imgURL, z) {
+  _createCircle(data, x, y, r, color, imgURL, label) {
     const circle = document.createElement('div');
-    const zIndex = z != null ? z : 1;
     const opacity = color != null ? 0.7  : 0;
     circle.style = `
       position: absolute;
@@ -235,12 +273,16 @@ class Jello {
       border-radius: 50%;
       width: ${r * 2}px;
       height: ${r * 2}px;
-      zIndex: ${zIndex};
       opacity: ${opacity};
       padding: 0px;
       box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
     `;
-    if (imgURL != null) {
+    if (imgURL !== null) {
       const img = document.createElement('img');
       img.src = imgURL;
       img.style = `
@@ -249,8 +291,17 @@ class Jello {
         object-fit: contain;
         border-radius: 50%;
       `;
+      circle.innerHTML = '';
       circle.appendChild(img);
+    } else if (label !== null) {
+      circle.innerHTML += label;
     }
+    circle.addEventListener("click", (event) => {
+      this.onClick && this.onClick(event, data);
+    });
+    circle.addEventListener("mouseover", (event) => {
+      this.onMouseover && this.onMouseover(event, data);
+    });
     return circle;
   }
 
@@ -293,17 +344,17 @@ class Jello {
       return {
         id: entry.id,
         name: entry.name,
-        value: this.sizeBy != null ? entry[this.sizeBy] : 1,
+        value: this.sizeByDim != null ? entry[this.sizeByDim] : 1,
         ...entry,
         };
     });
     // handle filterBy. When some entry is filtered out, we need to
     // 1) get rid of them from entries
     // 2) mark display to be false in the circlesProperty
-    if (this.filterBy !== null) {
+    if (this.filters !== null) {
       entries = entries.filter(entry => {
-        for (let dim in this.filterBy) {
-          const values = this.filterBy[dim];
+        for (let dim in this.filters) {
+          const values = this.filters[dim];
           if (values.indexOf(entry[dim]) < 0) {
             this.cirlcesProperty[entry.id].display = false;
             return false;
@@ -316,9 +367,9 @@ class Jello {
     let rootNode = hierarchy({ 'name': 'ALL', children: entries });
 
     // cluster view
-    if (this.clusterBy !== null) {
+    if (this.clusterByDim !== null) {
       const nested = nest()
-        .key(d => d[this.clusterBy])
+        .key(d => d[this.clusterByDim])
         .entries(entries);
       const converted = nested.map(item => {
         const value = item.values.reduce((total, child) => {
@@ -358,32 +409,50 @@ class Jello {
         });
       });
     }
-    if (this.colorBy === null) {
+    if (this.colorByDim === null) {
       this.data.forEach(entry => {
         this.cirlcesProperty[entry.id].color = DEFAULT_COLOR;
       });
     } else {
       const distinctValues = [...new Set(this.data.map(entry => entry[this.colorByDim]))];
-      this.data.map(entry => entry[this.colorBy])
+      this.data.map(entry => entry[this.colorByDim])
       const colorPicker = scaleOrdinal()
         .domain(distinctValues)
         .range(schemeSet3);
 
       this.data.forEach(entry => {
-        this.cirlcesProperty[entry.id].color = colorPicker(entry[this.colorBy])
+        this.cirlcesProperty[entry.id].color = colorPicker(entry[this.colorByDim])
       });
     }
-    if (this.displayImageBy !== null) {
+
+    // set images
+    if (this.displayImageByDim !== null) {
       this.data.forEach(entry => {
-        this.cirlcesProperty[entry.id].imgURL = entry[this.displayImageBy];
+        this.cirlcesProperty[entry.id].imgURL = entry[this.displayImageByDim];
         this.cirlcesProperty[entry.id].color = DEFAULT_COLOR;
       });
+    } else {
+      this.data.forEach(entry => {
+        this.cirlcesProperty[entry.id].imgURL = null;
+      });
     }
-    if (this.sortBy !== null) {
+
+    // set labels
+    if (this.labelByDim !== null) {
+      this.data.forEach(entry => {
+        this.cirlcesProperty[entry.id].label = entry[this.labelByDim];
+      });
+    } else {
+      this.data.forEach(entry => {
+        this.cirlcesProperty[entry.id].label = null;
+      });
+    }
+
+    if (this.sortSetting !== null) {
       this.sortLabelProperty = {};
-      const flag = this.sortBy.order === 'asc' ? 1 : -1;
+      const flag = this.sortSetting.order === 'asc' ? 1 : -1;
       entries.sort((a, b) => {
-        if (a[this.sortBy.dim] > b[this.sortBy.dim]) {
+        if (a[this.sortSetting.dim] > b[this.sortSetting.dim]) {
           return flag;
         } else {
           return flag * -1;
@@ -397,7 +466,7 @@ class Jello {
           x: offset + props.r,
           y: this.height / 2 + props.r + 20,
           width: props.r * 2,
-          txt: entries[i][this.sortBy.dim],
+          txt: entries[i][this.sortSetting.dim],
         };
         props.x = offset + props.r;
         props.y = this.height / 2;
