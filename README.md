@@ -4,7 +4,7 @@
 ![example](https://dl.airtable.com/.attachmentThumbnails/ed67b7e9d0bfb40f6365e13ad46f34c4/8a02ef07)
 
 
-Each circle in the visualization represents a data point. See a [live demo](https://www.liuchang.dev/cloud50).
+See this for [live demo](https://www.liuchang.dev/cloud50). Each circle in the visualization represents a company. 
 
 # How to Use
 install jellojs
@@ -26,7 +26,7 @@ function App({data}) {
     // initialize a Jello object
     const jello = new Jello(canvasRef.current, data, {});
     // and render
-    jello.setDisplayImageBy('logo').render();
+    jello.displayImageBy('logo').render();
     jelloRef.current = jello;
   }, []);
 
@@ -35,7 +35,7 @@ function App({data}) {
       <div ref={canvasRef} style={{width: 900, height: 700}} />
       </div>
       <button onClick={() => {
-        jelloRef.current.setClusterBy('industry').render();
+        jelloRef.current.clusterBy('industry').render();
       }}>
         cluster by industry
       </button>
@@ -98,27 +98,40 @@ export default App;
 
 # Available Operations
 
-use setColorBy to display the circles in different colors based on the dimension
+use colorBy to display the circles in different colors based on the dimension
 ```
-jello.setColorBy('industry').render();
+jello.colorBy('industry').render();
 ```
-etDisplayImageBy('logo').render();
+
+use clusterBy to display the circles in clusters
 ```
-use setClusterBy to display the circles in clusters
+  jello.clusterBy('industry').render();
 ```
-  jello.setClusterBy('industry').render();
+
+use sizeBy to change the size for each circle
 ```
-use setSizeBy to change the size for each circle
+  jello.sizeBy('rank').render();
 ```
-  jello.setSizeBy('rank').render();
+
+use sortBy to sort the circles based on the dimension
 ```
-use setSortBy to sort the circles based on the dimension
+  jello.sortBy({dim: 'valuation', order: 'desc'}).render();
 ```
-  jello.setSortBy('valuation').render();
+
+use displayImageBy to display an image on each circle, when this is set, setColorBy will be no effect
 ```
-use setDisplayImageBy to display an image on each circle, when this is set, setColorBy will be no effect
+jello.displayImageBy('logo').render();
 ```
-  jello.s
+  
+ use labelBy to display a label on each circle based on the dimension passed in
+```
+jello.labelBy('logo').render();
+```
+
+ use filterBy filter out records 
+```
+jello.filterBy({'industry': ['Fintech']}).render();
+```
 
 # Example Story Built with Jellojs
 - [Forbes Top 50 Private Companies](https://www.liuchang.dev/cloud50)
