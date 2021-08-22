@@ -4,7 +4,7 @@
 ![example](https://dl.airtable.com/.attachmentThumbnails/ed67b7e9d0bfb40f6365e13ad46f34c4/8a02ef07)
 
 
-See this for [live demo](https://www.liuchang.dev/cloud50). Each circle in the visualization represents a company. 
+See this for a [live demo](https://www.liuchang.dev/cloud50). Each circle in the visualization represents a company. 
 
 # How to Use
 install jellojs
@@ -105,17 +105,17 @@ jello.colorBy('industry').render();
 
 use clusterBy to display the circles in clusters
 ```
-  jello.clusterBy('industry').render();
+jello.clusterBy('industry').render();
 ```
 
 use sizeBy to change the size for each circle
 ```
-  jello.sizeBy('rank').render();
+jello.sizeBy('rank').render();
 ```
 
 use sortBy to sort the circles based on the dimension
 ```
-  jello.sortBy({dim: 'valuation', order: 'desc'}).render();
+jello.sortBy({dim: 'valuation', order: 'desc'}).render();
 ```
 
 use displayImageBy to display an image on each circle, when this is set, setColorBy will be no effect
