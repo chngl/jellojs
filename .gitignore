@@ -22,3 +22,4 @@ yarn-error.log*
 
 /example/node_modules
 /example/build
+/lib
