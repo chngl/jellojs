@@ -4,7 +4,7 @@
 ![example](https://dl.airtable.com/.attachmentThumbnails/ed67b7e9d0bfb40f6365e13ad46f34c4/8a02ef07)
 
 
-See this for a [live demo](https://www.liuchang.dev/cloud50). Each circle in the visualization represents a company. 
+See this for a [live demo](https://www.liuchang.dev/cloud50). Each circle in the visualization represents a company.
 
 # How to Use
 install jellojs
@@ -47,7 +47,7 @@ export default App;
 ```
 # Data Format
 ```
-// data passed to Jello is a list of objects with a required id field and some other properties 
+// data passed to Jello is a list of objects with a required id field and some other properties
 // see the example:
 [
   {
@@ -122,13 +122,13 @@ use displayImageBy to display an image on each circle, when this is set, setColo
 ```
 jello.displayImageBy('logo').render();
 ```
-  
+
  use labelBy to display a label on each circle based on the dimension passed in
 ```
 jello.labelBy('logo').render();
 ```
 
- use filterBy filter out records 
+ use filterBy filter out records
 ```
 jello.filterBy({'industry': ['Fintech']}).render();
 ```
