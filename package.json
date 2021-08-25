@@ -1,6 +1,6 @@
 {
   "name": "@chngl/jellojs",
-  "version": "1.1.5",
+  "version": "1.1.7",
   "description": "A visualization component to tell interactive data stories",
   "repository": {
     "type": "git",
@@ -29,7 +29,8 @@
     "@types/d3-collection": "^1.0.10"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "yarn build"
   },
   "devDependencies": {},
   "main": "./lib/esm/index.js",

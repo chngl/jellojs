@@ -26,9 +26,10 @@ type Options<T> = {
   clusterByDim?: string | null,
   sortSetting?: SortSetting | null,
   filters?: Filters | null,
-  onClick?: (event: Event, data: T) => void,
-  onMouseover?: (event: Event, data: T) => void,
-  onCanvasClick?: (event: Event) => {},
+  onClick?: (event: MouseEvent, data: T) => void,
+  onMouseover?: (event: MouseEvent, data: T) => void,
+  onMouseout?: (event: MouseEvent, data: T) => void,
+  onCanvasClick?: (event: MouseEvent) => void,
 };
 
 type Filters = {
@@ -345,12 +346,16 @@ class Jello<T extends ObjectWithID> {
     } else if (label != null) {
       circle.innerHTML += label;
     }
-    circle.addEventListener("click", (event) => {
-      this.options.onClick && this.options.onClick(event, data);
-    });
-    circle.addEventListener("mouseover", (event) => {
-      this.options.onMouseover && this.options.onMouseover(event, data);
-    });
+    const events = {
+      'click': this.options.onClick,
+      'mouseover': this.options.onMouseover,
+      'mouseout': this.options.onMouseout,
+    };
+    for (let e in events) {
+      circle.addEventListener(e, (event) => {
+        events[e] && events[e](event, data);
+      });
+    }
     return circle;
   }
 
