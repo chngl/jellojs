@@ -1018,9 +1018,17 @@
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
 
-"@chngl/jellojs@link:..":
-  version "0.0.0"
-  uid ""
+"@chngl/jellojs@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@chngl/jellojs/-/jellojs-1.1.7.tgz#ac26ea5b8fd167ec663f469f854c8b4c869430e0"
+  dependencies:
+    "@types/animejs" "^3.1.4"
+    "@types/d3" "^7.0.0"
+    "@types/d3-collection" "^1.0.10"
+    animejs "^3.2.1"
+    d3 "^7.0.1"
+    d3-collection "^1.0.7"
+    typescript "^4.1.2"
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"

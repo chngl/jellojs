@@ -17,7 +17,8 @@ function App() {
         {
           labelByDim: 'company',
           onClick: (event: any, data: CompanyData) => {},
-          onMouseover: (event: any, data: CompanyData) => {}
+          onMouseover: (event: any, data: CompanyData) => {console.log('over')},
+          onMouseout: (event: any, data: CompanyData) => {console.log('out')}
         }
       );
       jello.render();
