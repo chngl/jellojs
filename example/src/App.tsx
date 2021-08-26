@@ -16,7 +16,7 @@ function App() {
         data,
         {
           labelByDim: 'company',
-          onClick: (event: any, data: CompanyData) => {},
+          onClick: (event: any, data: CompanyData) => {console.log('click')},
           onMouseover: (event: any, data: CompanyData) => {},
           onMouseout: (event: any, data: CompanyData) => {}
         }
@@ -77,6 +77,11 @@ function App() {
         jelloRef.current && jelloRef.current.sortBy({ dim: 'employees', order: 'asc' }).render();
       }}>
         sort by employee count
+      </button>
+      <button onClick={() => {
+        jelloRef.current && jelloRef.current.reset().render();
+      }}>
+        reset
       </button>
     </div>
   );

@@ -45,12 +45,8 @@ export type LayoutProperty = {
 };
 
 export type CircleProperty<T> = {
-  x: number,
-  y: number,
-  r: number,
   color: string,
   imgURL: string | null,
   label: string | null,
-  display: boolean,
   _data: T,
-};
+} & LayoutProperty;

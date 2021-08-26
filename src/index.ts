@@ -19,6 +19,7 @@ class Jello<T extends ObjectWithID> {
   height: number;
   data: Array<T>;
   options: Options<T>;
+  originalOptions: Options<T>;
   container: HTMLDivElement;
   circleDiv: HTMLDivElement;
   additionalVisualDiv: HTMLDivElement;
@@ -46,12 +47,9 @@ class Jello<T extends ObjectWithID> {
     this.data = data;
     this.options = options;
     this.options.layout = this.options.layout || 'default';
+    this.originalOptions = {...this.options};
+    this._initLayoutManager();
 
-    this.layoutManager = {
-      'default': new DefaultLayout<T>(data, options, this.width, this.height),
-      'cluster': new ClusterLayout<T>(data, options, this.width, this.height),
-      'sort': new SortLayout<T>(data, options, this.width, this.height),
-    };
     this.circles = {};
     this.cirlcesProperty = {};
     this.data.forEach(entry => {
@@ -73,6 +71,7 @@ class Jello<T extends ObjectWithID> {
   }
 
   render() {
+    console.log(this.options);
     // additional visuals(specific to each layout) are going to be recreated everytime render gets called
     // they get recreated from calling _updateCircleLayout
     this.additionalVisualDiv.innerHTML = "";
@@ -150,12 +149,27 @@ class Jello<T extends ObjectWithID> {
     return this;
   }
 
+  reset() {
+    console.log('reset');
+    this.options = {...this.originalOptions};
+    this._initLayoutManager();
+    return this;
+  }
+
+  _initLayoutManager() {
+    this.layoutManager = {
+      'default': new DefaultLayout<T>(this.data, this.options, this.width, this.height),
+      'cluster': new ClusterLayout<T>(this.data, this.options, this.width, this.height),
+      'sort': new SortLayout<T>(this.data, this.options, this.width, this.height),
+    };
+  }
+
   _renderCirles() {
     if (!Object.keys(this.circles).length) {
       this.data.forEach(entry => {
         const { _data, x, y, r, display } = this.cirlcesProperty[entry.id];
         const radius = display ? r : 0;
-        const circle = createCircle(_data, x, y, radius);
+        const circle = createCircle(_data, x, y, radius, this.options.onClick, this.options.onMouseover, this.options.onMouseout);
         this.circleDiv.appendChild(circle);
         this.circles[entry.id] = circle;
       });
