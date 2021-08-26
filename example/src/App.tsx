@@ -17,8 +17,8 @@ function App() {
         {
           labelByDim: 'company',
           onClick: (event: any, data: CompanyData) => {},
-          onMouseover: (event: any, data: CompanyData) => {console.log('over')},
-          onMouseout: (event: any, data: CompanyData) => {console.log('out')}
+          onMouseover: (event: any, data: CompanyData) => {},
+          onMouseout: (event: any, data: CompanyData) => {}
         }
       );
       jello.render();
@@ -67,6 +67,11 @@ function App() {
         jelloRef.current && jelloRef.current.filterBy({ 'headquarter': ['San Francisco Bay Area, California'] }).render();
       }}>
         filter by headquarter
+      </button>
+      <button onClick={() => {
+        jelloRef.current && jelloRef.current.filterBy({}).render();
+      }}>
+        clear filter
       </button>
       <button onClick={() => {
         jelloRef.current && jelloRef.current.sortBy({ dim: 'employees', order: 'asc' }).render();
