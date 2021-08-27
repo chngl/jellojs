@@ -89,6 +89,7 @@ class Jello<T extends ObjectWithID> {
   updateWidthHeight() {
     this.width = this.container.offsetWidth;
     this.height = this.container.offsetHeight;
+    this._initLayoutManager();
     return this;
   }
 

@@ -8,7 +8,6 @@ import { createText } from '../utils';
 
 export default class SortLayout<T extends ObjectWithID> extends LayoutBase<T> {
 
-  sortLabelProperty: {};
   constructor(data: Array<T>, options: Options<T>, width: number, height: number) {
     super(data, options, width, height);
   }
@@ -17,13 +16,13 @@ export default class SortLayout<T extends ObjectWithID> extends LayoutBase<T> {
     layoutProperties: {[key: string]: LayoutProperty},
     additionalVisual: HTMLDivElement | null,
   } {
+    const sortLabelProperty = {};
     const labels = document.createElement('div');
     labels.innerHTML = "";
     const defaultLayout = new DefaultLayout(this.data, this.options, this.width, this.height);
     const layoutProperties = defaultLayout.calculateCirclesLayout().layoutProperties;
     if (this.options.sortSetting != null) {
       const setting = this.options.sortSetting;
-      this.sortLabelProperty = {};
       const flag = setting.order === 'asc' ? 1 : -1;
       const entries: Array<{id: string, value: string | number}> = [];
       this.data.forEach(entry => {
@@ -45,7 +44,7 @@ export default class SortLayout<T extends ObjectWithID> extends LayoutBase<T> {
       let offset = 10;
       for (let i = 0; i < entries.length; i++) {
         const props = layoutProperties[entries[i].id];
-        this.sortLabelProperty[entries[i].id] = {
+        sortLabelProperty[entries[i].id] = {
           x: offset + props.r,
           y: this.height / 2 + props.r + 20,
           width: props.r * 2,
@@ -56,9 +55,9 @@ export default class SortLayout<T extends ObjectWithID> extends LayoutBase<T> {
         offset += 2 * props.r + 10;
       }
     }
-    if (this.sortLabelProperty && Object.keys(this.sortLabelProperty).length) {
-      for (let id in this.sortLabelProperty) {
-        const { x, y, width, label } = this.sortLabelProperty[id];
+    if (sortLabelProperty && Object.keys(sortLabelProperty).length) {
+      for (let id in sortLabelProperty) {
+        const { x, y, width, label } = sortLabelProperty[id];
         const text = createText(x, y, width, 10, label, 1);
         labels.appendChild(text);
         anime({

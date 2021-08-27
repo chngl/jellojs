@@ -10,7 +10,6 @@ import type { SortSetting } from '../types'
 
 export default class PlotLayout<T extends ObjectWithID> extends LayoutBase<T> {
 
-  sortLabelProperty: {};
   constructor(data: Array<T>, options: Options<T>, width: number, height: number) {
     super(data, options, width, height);
   }

@@ -23,11 +23,12 @@ function App() {
       );
       jello.render();
       jelloRef.current = jello;
+      window.onresize = () => jello.updateWidthHeight().render();
     }
   }, []);
   return (
     <div className="App">
-      <div ref={canvasRef} style={{ width: 900, height: 700 }} />
+      <div ref={canvasRef} style={{ width: '100%', height: 700}} />
       <button onClick={() => {
         jelloRef.current && jelloRef.current.displayImageBy('logo').render();
       }}>
