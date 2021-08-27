@@ -1,6 +1,6 @@
 {
   "name": "@chngl/jellojs",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "A visualization component to tell interactive data stories",
   "repository": {
     "type": "git",
