@@ -8,6 +8,12 @@ export type SortSetting = {
   order: 'asc' | 'desc',
 }
 
+export type PlotSetting<T> = {
+  x: SortSetting,
+  y: SortSetting,
+  getCircleSize?: (data: T) => number,
+}
+
 export type GroupBySetting = {
   dim: string,
   agg: 'avg' | 'count' | 'sum' | 'median',
@@ -29,6 +35,7 @@ export type Options<T> = {
   sizeByDim?: string | null,
   clusterByDim?: string | null,
   sortSetting?: SortSetting | null,
+  plotSetting?: PlotSetting<T> | null,
   filters?: Filters | null,
   groupBySetting?: GroupBySetting | null,
   onClick?: (event: MouseEvent, data: T) => void,

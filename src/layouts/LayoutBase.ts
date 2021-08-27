@@ -16,10 +16,17 @@ export default class LayoutBase<T extends ObjectWithID> {
     this.height = height;
   }
 
-  calculateCirclesLayout():{[key: string]: LayoutProperty} {
-    return {};
-  }
-  renderAdditionalVisual(): HTMLDivElement | null {
-    return null;
+  /**
+   * @returns this function returns the layout properties for each cricle,
+   *          as well as an optional div that contains the additional visuals to complement the layout
+   */
+  calculateCirclesLayout(): {
+    layoutProperties: {[key: string]: LayoutProperty},
+    additionalVisual: HTMLDivElement | null,
+  } {
+    return {
+      layoutProperties: {},
+      additionalVisual: null,
+    };
   }
 }

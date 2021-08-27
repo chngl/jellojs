@@ -16,7 +16,7 @@ function App() {
         data,
         {
           labelByDim: 'company',
-          onClick: (event: any, data: CompanyData) => {console.log('click')},
+          onClick: (event: any, data: CompanyData) => {console.log(data);},
           onMouseover: (event: any, data: CompanyData) => {},
           onMouseout: (event: any, data: CompanyData) => {}
         }
@@ -77,6 +77,15 @@ function App() {
         jelloRef.current && jelloRef.current.sortBy({ dim: 'employees', order: 'asc' }).render();
       }}>
         sort by employee count
+      </button>
+      <button onClick={() => {
+        jelloRef.current && jelloRef.current.plotBy({
+          x: { dim: 'employees', order: 'asc' },
+          y: { dim: 'funding', order: 'asc' },
+          getCircleSize: (_: CompanyData) => 20,
+        }).render();
+      }}>
+        plot by employee count and valuation
       </button>
       <button onClick={() => {
         jelloRef.current && jelloRef.current.reset().render();

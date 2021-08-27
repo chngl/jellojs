@@ -2,17 +2,18 @@ import { scaleOrdinal, schemeSet3 } from 'd3';
 
 import type {CircleProperty} from './types';
 import ClusterLayout from './layouts/ClusterLayout';
+import {DEFAULT_COLOR} from './constants';
 import DefaultLayout from './layouts/DefaultLayout';
 import type {Filters} from './types';
 import LayoutBase from './layouts/LayoutBase';
 import type {ObjectWithID} from './types';
 import type {Options} from './types';
+import PlotLayout from './layouts/PlotLayout';
+import type {PlotSetting} from './types';
 import SortLayout from './layouts/SortLayout';
 import type {SortSetting} from './types';
 import anime from 'animejs';
 import {createCircle} from './utils';
-
-const DEFAULT_COLOR = '#eee';
 
 class Jello<T extends ObjectWithID> {
   width: number;
@@ -71,7 +72,6 @@ class Jello<T extends ObjectWithID> {
   }
 
   render() {
-    console.log(this.options);
     // additional visuals(specific to each layout) are going to be recreated everytime render gets called
     // they get recreated from calling _updateCircleLayout
     this.additionalVisualDiv.innerHTML = "";
@@ -141,6 +141,25 @@ class Jello<T extends ObjectWithID> {
     return this;
   }
 
+  plotBy(setting: PlotSetting<T> | null) {
+    const xDim = setting?.x?.dim ?? null;
+    const yDim = setting?.y?.dim ?? null;
+    const xSanitized = this._sanitizeDimension(xDim);
+    const ySanitized = this._sanitizeDimension(yDim);
+    if (
+      xSanitized != null &&
+      ySanitized != null &&
+      typeof this.data[0][xSanitized] === 'number' &&
+      typeof this.data[0][ySanitized] === 'number'
+    ) {
+      this.options.plotSetting = setting;
+      this.options.layout = 'plot';
+    } else {
+      console.log('plotBy will no take effect because some of the dimensions are not available or the values for the dimension are not numbers.');
+    }
+    return this;
+  }
+
   displayImageBy(dim: string | null) {
     this.options.displayImageByDim = this._sanitizeDimension(dim);
     if (this.options.displayImageByDim != null) {
@@ -150,7 +169,6 @@ class Jello<T extends ObjectWithID> {
   }
 
   reset() {
-    console.log('reset');
     this.options = {...this.originalOptions};
     this._initLayoutManager();
     return this;
@@ -161,6 +179,7 @@ class Jello<T extends ObjectWithID> {
       'default': new DefaultLayout<T>(this.data, this.options, this.width, this.height),
       'cluster': new ClusterLayout<T>(this.data, this.options, this.width, this.height),
       'sort': new SortLayout<T>(this.data, this.options, this.width, this.height),
+      'plot': new PlotLayout<T>(this.data, this.options, this.width, this.height),
     };
   }
 
@@ -181,7 +200,7 @@ class Jello<T extends ObjectWithID> {
       const bg = this.options.displayImageByDim != null ? ` url(${imgURL}) no-repeat` : color;
       this.circles[id].style.background = bg;
       this.circles[id].style.backgroundSize = 'cover';
-      this.circles[id].innerHTML = label || '';
+      this.circles[id].innerHTML = display && label != null ? label : '';
       anime({
         targets: [this.circles[id]],
         easing: 'easeInOutSine',
@@ -208,17 +227,14 @@ class Jello<T extends ObjectWithID> {
   }
 
   _updateCircleLayout() {
-    let layoutProperty = {};
-    let additionalVisual = null;
     const layout = this.options.layout || 'default';
-    layoutProperty = this.layoutManager[layout].calculateCirclesLayout();
-    additionalVisual = this.layoutManager[layout].renderAdditionalVisual();
-    for (let id in layoutProperty) {
+    const {layoutProperties, additionalVisual} = this.layoutManager[layout].calculateCirclesLayout();
+    for (let id in layoutProperties) {
       if (id in this.cirlcesProperty) {
-        this.cirlcesProperty[id].x = layoutProperty[id].x;
-        this.cirlcesProperty[id].y = layoutProperty[id].y;
-        this.cirlcesProperty[id].r = layoutProperty[id].r;
-        this.cirlcesProperty[id].display = layoutProperty[id].display;
+        this.cirlcesProperty[id].x = layoutProperties[id].x;
+        this.cirlcesProperty[id].y = layoutProperties[id].y;
+        this.cirlcesProperty[id].r = layoutProperties[id].r;
+        this.cirlcesProperty[id].display = layoutProperties[id].display;
       }
     }
     if (additionalVisual !== null) {

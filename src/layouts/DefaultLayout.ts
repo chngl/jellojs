@@ -11,14 +11,17 @@ export default class DefaultLayout<T extends ObjectWithID> extends LayoutBase<T>
     super(data, options, width, height);
   }
 
-  calculateCirclesLayout():{[key: string]: LayoutProperty} {
-    const property = {};
+  calculateCirclesLayout(): {
+    layoutProperties: {[key: string]: LayoutProperty},
+    additionalVisual: HTMLDivElement | null,
+  } {
+    const layoutProperties = {};
     const packLayout = pack()
       .size([this.width, this.height])
       .padding(20);
     const sizeByDim = this.options.sizeByDim;
     let entries: Array<{[key: string]: string | number}> = this.data.map(entry => {
-      property[entry.id] = {
+      layoutProperties[entry.id] = {
         x: this.width / 2,
         y: this.height / 2,
         r: 0,
@@ -38,7 +41,7 @@ export default class DefaultLayout<T extends ObjectWithID> extends LayoutBase<T>
         for (let dim in this.options.filters) {
           const values = this.options.filters[dim];
           if (values.indexOf(entry[dim]) < 0) {
-            property[entry.id].display = false;
+            layoutProperties[entry.id].display = false;
             return false;
           }
         }
@@ -53,16 +56,15 @@ export default class DefaultLayout<T extends ObjectWithID> extends LayoutBase<T>
 
     rootNode?.children?.forEach(entry => {
       // @ts-ignore
-      property[entry.data.id].x = entry.x;
+      layoutProperties[entry.data.id].x = entry.x;
       // @ts-ignore
-      property[entry.data.id].y = entry.y;
+      layoutProperties[entry.data.id].y = entry.y;
       // @ts-ignore
-      property[entry.data.id].r = entry.r;
+      layoutProperties[entry.data.id].r = entry.r;
     });
-    return property;
-  }
-
-  renderAdditionalVisual(): HTMLDivElement | null {
-    return null;
+    return {
+      layoutProperties,
+      additionalVisual: null,
+    };
   }
 }

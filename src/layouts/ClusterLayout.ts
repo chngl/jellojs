@@ -10,13 +10,14 @@ import { nest } from 'd3-collection'
 
 export default class ClusterLayout<T extends ObjectWithID> extends LayoutBase<T> {
 
-  clustersProperty: {};
   constructor(data: Array<T>, options: Options<T>, width: number, height: number) {
     super(data, options, width, height);
-    this.clustersProperty = {};
   }
 
-  calculateCirclesLayout(): { [key: string]: LayoutProperty } {
+  calculateCirclesLayout(): {
+    layoutProperties: {[key: string]: LayoutProperty},
+    additionalVisual: HTMLDivElement | null,
+  } {
     const property = {};
     const packLayout = pack()
       .size([this.width, this.height])
@@ -73,11 +74,11 @@ export default class ClusterLayout<T extends ObjectWithID> extends LayoutBase<T>
     rootNode.sum(d => d.value);
     packLayout(rootNode);
 
-    this.clustersProperty = {};
+    const clustersProperty = {};
     // @ts-ignore
     rootNode.children.forEach(cluster => {
       // @ts-ignore
-      this.clustersProperty[cluster.data.id] = {
+      clustersProperty[cluster.data.id] = {
         // @ts-ignore
         text: cluster.data.id,
         // @ts-ignore
@@ -97,18 +98,13 @@ export default class ClusterLayout<T extends ObjectWithID> extends LayoutBase<T>
         property[entry.data.id].r = entry.r;
       });
     });
-    return property;
-  }
-
-  renderAdditionalVisual(): HTMLDivElement | null {
-    // the cluster/label divs are already being re-created everytime render is called
     const clusters = document.createElement('div');
     clusters.innerHTML = "";
 
-    if (Object.keys(this.clustersProperty).length) {
+    if (Object.keys(clustersProperty).length) {
       // render cluster circle before cluster label to make sure labels are on top
-      for (let id in this.clustersProperty) {
-        const { x, y, r } = this.clustersProperty[id];
+      for (let id in clustersProperty) {
+        const { x, y, r } = clustersProperty[id];
         const circle: HTMLDivElement = createCircle(null, x, y, r);
         clusters.appendChild(circle);
         anime({
@@ -118,8 +114,8 @@ export default class ClusterLayout<T extends ObjectWithID> extends LayoutBase<T>
           opacity: 0.5,
         });
       }
-      for (let id in this.clustersProperty) {
-        const { x, y, r } = this.clustersProperty[id];
+      for (let id in clustersProperty) {
+        const { x, y, r } = clustersProperty[id];
         const text = createText(x, y - r - 10, r * 2, 20, id, 1000);
         clusters.appendChild(text);
         anime({
@@ -129,6 +125,9 @@ export default class ClusterLayout<T extends ObjectWithID> extends LayoutBase<T>
         });
       }
     }
-    return clusters;
+    return {
+      layoutProperties: property,
+      additionalVisual: clusters,
+    };
   }
 }
