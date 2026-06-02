@@ -5,6 +5,8 @@ import ClusterLayout from './layouts/ClusterLayout';
 import {DEFAULT_COLOR} from './constants';
 import DefaultLayout from './layouts/DefaultLayout';
 import type {Filters} from './types';
+import GroupByLayout from './layouts/GroupByLayout';
+import type {GroupBySetting} from './types';
 import LayoutBase from './layouts/LayoutBase';
 import type {ObjectWithID} from './types';
 import type {Options} from './types';
@@ -161,6 +163,20 @@ class Jello<T extends ObjectWithID> {
     return this;
   }
 
+  groupBy(setting: GroupBySetting | null) {
+    if (setting === null) {
+      this.options.groupBySetting = null;
+      this.options.layout = 'default';
+      return this;
+    }
+    const sanitized = this._sanitizeDimension(setting.dim);
+    if (sanitized != null) {
+      this.options.groupBySetting = setting;
+      this.options.layout = 'group by';
+    }
+    return this;
+  }
+
   displayImageBy(dim: string | null) {
     this.options.displayImageByDim = this._sanitizeDimension(dim);
     if (this.options.displayImageByDim != null) {
@@ -181,6 +197,7 @@ class Jello<T extends ObjectWithID> {
       'cluster': new ClusterLayout<T>(this.data, this.options, this.width, this.height),
       'sort': new SortLayout<T>(this.data, this.options, this.width, this.height),
       'plot': new PlotLayout<T>(this.data, this.options, this.width, this.height),
+      'group by': new GroupByLayout<T>(this.data, this.options, this.width, this.height),
     };
   }
 
