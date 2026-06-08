@@ -5377,6 +5377,9 @@ var JelloModule = (() => {
     }
     calculateCirclesLayout() {
       const property = {};
+      this.data.forEach((entry) => {
+        property[entry.id] = { x: 0, y: 0, r: 0, display: false };
+      });
       const setting = this.options.groupBySetting;
       if (!setting) {
         return { layoutProperties: property, additionalVisual: null };
