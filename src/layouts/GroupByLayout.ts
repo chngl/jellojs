@@ -20,6 +20,11 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
   } {
     const property: {[key: string]: LayoutProperty} = {};
 
+    // Hide all individual circles when using groupBy layout
+    this.data.forEach(entry => {
+      property[entry.id] = { x: 0, y: 0, r: 0, display: false };
+    });
+
     const setting = this.options.groupBySetting;
     if (!setting) {
       return { layoutProperties: property, additionalVisual: null };
