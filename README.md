@@ -6,6 +6,8 @@
 
 See this for a [live demo](https://www.liuchang.dev/cloud50). Each circle in the visualization represents a company.
 
+Try the [interactive demo](https://chngl.github.io/jellojs/) to see groupBy layout in action.
+
 # How to Use
 install jellojs
 ```
