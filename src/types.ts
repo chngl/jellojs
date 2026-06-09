@@ -19,6 +19,7 @@ export type GroupBySetting = {
   agg: 'avg' | 'count' | 'sum' | 'median',
   sortBy: 'dim' | 'agg',
   sortOrder: 'asc' | 'desc',
+  renderAs?: "circles" | "bars",
 };
 
 export type Filters = {

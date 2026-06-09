@@ -1,11 +1,11 @@
-import { hierarchy, pack } from 'd3';
+import { hierarchy, pack, scaleLinear, scaleBand } from 'd3';
 
 import LayoutBase from './LayoutBase';
 import type { LayoutProperty } from '../types';
 import type { ObjectWithID } from '../types';
 import type { Options } from '../types';
 import { createCircle, createText } from '../utils';
-import { DEFAULT_COLOR } from '../constants';
+import { DEFAULT_COLOR, FONT_FAMILY, FONT_COLOR, FONT_SIZE, AXIS_COLOR } from '../constants';
 import anime from 'animejs';
 
 export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T> {
@@ -53,6 +53,7 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
     const agg = setting.agg;
     const sortBy = setting.sortBy;
     const sortOrder = setting.sortOrder;
+    const renderAs = setting.renderAs || 'circles';
 
     const groups: {[key: string]: Array<T>} = {};
     entries.forEach(entry => {
@@ -81,6 +82,20 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
       return sortOrder === 'desc' ? -cmp : cmp;
     });
 
+    if (renderAs === 'bars') {
+      return this._renderBars(groupEntries, property);
+    }
+
+    return this._renderCircles(groupEntries, property);
+  }
+
+  _renderCircles(
+    groupEntries: Array<{key: string, value: number}>,
+    property: {[key: string]: LayoutProperty},
+  ): {
+    layoutProperties: {[key: string]: LayoutProperty},
+    additionalVisual: HTMLDivElement | null,
+  } {
     const packLayout = pack()
       .size([this.width, this.height])
       .padding(20);
@@ -137,6 +152,132 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
         });
       });
     }
+
+    return {
+      layoutProperties: property,
+      additionalVisual: container,
+    };
+  }
+
+  _renderBars(
+    groupEntries: Array<{key: string, value: number}>,
+    property: {[key: string]: LayoutProperty},
+  ): {
+    layoutProperties: {[key: string]: LayoutProperty},
+    additionalVisual: HTMLDivElement | null,
+  } {
+    const padding = { top: 20, right: 40, bottom: 40, left: 80 };
+    const chartWidth = this.width - padding.left - padding.right;
+    const chartHeight = this.height - padding.top - padding.bottom;
+
+    const maxValue = Math.max(...groupEntries.map(g => g.value), 0.001);
+
+    const xScale = scaleLinear()
+      .domain([0, maxValue])
+      .range([0, chartWidth]);
+
+    const yScale = scaleBand<string>()
+      .domain(groupEntries.map(g => g.key))
+      .range([0, chartHeight])
+      .padding(0.2);
+
+    const barHeight = yScale.bandwidth();
+
+    const container = document.createElement('div');
+    container.style.position = 'relative';
+    container.style.width = this.width + 'px';
+    container.style.height = this.height + 'px';
+
+    groupEntries.forEach(g => {
+      const barWidth = xScale(g.value);
+      const barX = padding.left;
+      const barY = padding.top + (yScale(g.key) || 0);
+
+      const bar = document.createElement('div');
+      bar.setAttribute('style', [
+        'position: absolute',
+        'left: ' + barX + 'px',
+        'top: ' + barY + 'px',
+        'width: 0px',
+        'height: ' + barHeight + 'px',
+        'background: ' + DEFAULT_COLOR,
+        'border-radius: 50%',
+        'opacity: 0',
+        'box-sizing: border-box',
+      ].join('; '));
+      container.appendChild(bar);
+
+      anime({
+        targets: [bar],
+        easing: 'easeInOutSine',
+        width: barWidth,
+        borderRadius: 0,
+        opacity: 0.7,
+        duration: 700,
+      });
+
+      const label = document.createElement('div');
+      label.setAttribute('style', [
+        'position: absolute',
+        'left: 0px',
+        'top: ' + barY + 'px',
+        'width: ' + (padding.left - 8) + 'px',
+        'height: ' + barHeight + 'px',
+        'display: flex',
+        'align-items: center',
+        'justify-content: flex-end',
+        'color: ' + FONT_COLOR,
+        'font-family: ' + FONT_FAMILY,
+        'font-size: ' + FONT_SIZE + 'px',
+        'opacity: 0',
+        'white-space: nowrap',
+        'overflow: hidden',
+        'text-overflow: ellipsis',
+      ].join('; '));
+      label.textContent = g.key;
+      container.appendChild(label);
+
+      anime({
+        targets: [label],
+        easing: 'easeInOutSine',
+        opacity: 1,
+        duration: 700,
+      });
+
+      const valueLabel = document.createElement('div');
+      valueLabel.setAttribute('style', [
+        'position: absolute',
+        'left: ' + (barX + barWidth + 4) + 'px',
+        'top: ' + barY + 'px',
+        'height: ' + barHeight + 'px',
+        'display: flex',
+        'align-items: center',
+        'color: ' + FONT_COLOR,
+        'font-family: ' + FONT_FAMILY,
+        'font-size: ' + FONT_SIZE + 'px',
+        'opacity: 0',
+      ].join('; '));
+      valueLabel.textContent = String(Math.round(g.value * 100) / 100);
+      container.appendChild(valueLabel);
+
+      anime({
+        targets: [valueLabel],
+        easing: 'easeInOutSine',
+        opacity: 1,
+        duration: 700,
+      });
+    });
+
+    const axisLine = document.createElement('div');
+    axisLine.setAttribute('style', [
+      'position: absolute',
+      'left: ' + padding.left + 'px',
+      'top: ' + (padding.top + chartHeight) + 'px',
+      'width: ' + chartWidth + 'px',
+      'height: 1px',
+      'background: ' + AXIS_COLOR,
+    ].join('; '));
+    container.appendChild(axisLine);
 
     return {
       layoutProperties: property,
