@@ -5639,6 +5639,26 @@ var JelloModule = (() => {
           return g.key;
         })).range([0, chartHeight]).padding(0.2);
         var barHeight = yScale.bandwidth();
+        var packLayout = pack_default().size([this.width, this.height]).padding(20);
+        var rootData = {
+          children: groupEntries.map(function(g) {
+            return {
+              id: g.key,
+              value: Math.max(g.value, 1e-3)
+            };
+          })
+        };
+        var rootNode = hierarchy(rootData);
+        rootNode.sum(function(d) {
+          return d.value;
+        });
+        packLayout(rootNode);
+        var circlePositions = {};
+        if (rootNode.children) {
+          rootNode.children.forEach(function(node) {
+            circlePositions[node.data.id] = { x: node.x, y: node.y, r: node.r };
+          });
+        }
         var container = document.createElement("div");
         container.style.position = "relative";
         container.style.width = this.width + "px";
@@ -5647,6 +5667,24 @@ var JelloModule = (() => {
           var barWidth = xScale(g.value);
           var barX = padding.left;
           var barY = padding.top + (yScale(g.key) || 0);
+          var cp = circlePositions[g.key];
+          if (cp) {
+            var circle = createCircle(null, cp.x, cp.y, cp.r);
+            circle.style.background = DEFAULT_COLOR;
+            circle.style.opacity = "0.7";
+            container.appendChild(circle);
+            anime_es_default({
+              targets: [circle],
+              easing: "easeInOutSine",
+              left: barX,
+              top: barY,
+              width: barHeight,
+              height: barHeight,
+              borderRadius: "50%",
+              opacity: 0,
+              duration: 700
+            });
+          }
           var bar = document.createElement("div");
           bar.setAttribute("style", [
             "position: absolute",
@@ -5655,7 +5693,6 @@ var JelloModule = (() => {
             "width: 0px",
             "height: " + barHeight + "px",
             "background: " + DEFAULT_COLOR,
-            "border-radius: 50%",
             "opacity: 0",
             "box-sizing: border-box"
           ].join("; "));
@@ -5664,9 +5701,9 @@ var JelloModule = (() => {
             targets: [bar],
             easing: "easeInOutSine",
             width: barWidth,
-            borderRadius: 0,
             opacity: 0.7,
-            duration: 700
+            duration: 700,
+            delay: 300
           });
           var label = document.createElement("div");
           label.setAttribute("style", [
@@ -5692,7 +5729,8 @@ var JelloModule = (() => {
             targets: [label],
             easing: "easeInOutSine",
             opacity: 1,
-            duration: 700
+            duration: 700,
+            delay: 300
           });
           var valueLabel = document.createElement("div");
           valueLabel.setAttribute("style", [
@@ -5713,7 +5751,8 @@ var JelloModule = (() => {
             targets: [valueLabel],
             easing: "easeInOutSine",
             opacity: 1,
-            duration: 700
+            duration: 700,
+            delay: 300
           });
         });
         var axisLine = document.createElement("div");
