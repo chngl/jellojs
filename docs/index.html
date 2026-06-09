@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>jellojs — groupBy Layout Demo</title>
+  <title>jellojs — groupBy Bar Chart Demo</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -28,6 +28,17 @@
       color: #888;
       font-size: 0.9rem;
     }
+    .feature-badge {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      background: rgba(108,159,255,0.15);
+      border: 1px solid rgba(108,159,255,0.3);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: #6c9fff;
+      letter-spacing: 0.05em;
+    }
     .controls {
       display: flex;
       justify-content: center;
@@ -45,6 +56,12 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: #666;
+    }
+    .control-group.highlight label {
+      color: #6c9fff;
+    }
+    .control-group.highlight select {
+      border-color: #6c9fff;
     }
     select {
       background: #1a1a2e;
@@ -120,7 +137,8 @@
 <body>
   <div class="header">
     <h1><span>jellojs</span> groupBy Layout</h1>
-    <p>Aggregate data points by category — sized by count, sum, average, or median</p>
+    <p>Aggregate data points by category — switch between circles and bar chart with smooth animation</p>
+    <div class="feature-badge">NEW: Bar Chart Mode with Animated Transitions</div>
   </div>
 
   <div class="controls">
@@ -138,6 +156,13 @@
         <option value="sum">Sum</option>
         <option value="avg">Average</option>
         <option value="median">Median</option>
+      </select>
+    </div>
+    <div class="control-group highlight">
+      <label>Render As</label>
+      <select id="renderAs">
+        <option value="circles">Circles</option>
+        <option value="bars">Bar Chart</option>
       </select>
     </div>
     <div class="control-group">
@@ -200,7 +225,8 @@
   </table>
 
   <div class="footer">
-    <a href="https://github.com/chngl/jellojs">github.com/chngl/jellojs</a>
+    <a href="https://github.com/chngl/jellojs">github.com/chngl/jellojs</a> &middot;
+    <a href="https://github.com/chngl/jellojs/tree/feature/groupby-barchart">feature/groupby-barchart</a>
   </div>
 
   <script src="jello.bundle.js"></script>
@@ -225,11 +251,10 @@
       { id: '15', company: 'Sony',      industry: 'Tech',    region: 'Asia',     employees: 113000, revenue: 88,   valuation: 120 },
     ];
 
-    // Populate data table
     const tbody = document.getElementById('dataBody');
     companies.forEach(c => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.company}</td><td>${c.industry}</td><td>${c.region}</td><td>${c.employees.toLocaleString()}</td><td>${c.revenue}</td><td>${c.valuation}</td>`;
+      tr.innerHTML = '<td>' + c.company + '</td><td>' + c.industry + '</td><td>' + c.region + '</td><td>' + c.employees.toLocaleString() + '</td><td>' + c.revenue + '</td><td>' + c.valuation + '</td>';
       tbody.appendChild(tr);
     });
 
@@ -239,6 +264,7 @@
     function updateViz() {
       const dim = document.getElementById('groupDim').value;
       const agg = document.getElementById('aggType').value;
+      const renderAs = document.getElementById('renderAs').value;
       const sizeBy = document.getElementById('sizeBy').value;
       const sortBy = document.getElementById('sortBy').value;
       const sortOrder = document.getElementById('sortOrder').value;
@@ -263,6 +289,7 @@
           agg: agg,
           sortBy: sortBy,
           sortOrder: sortOrder,
+          renderAs: renderAs,
         });
       } else if (layoutType === 'cluster') {
         jello.groupBy(null);
@@ -274,7 +301,6 @@
 
       jello.render();
 
-      // Update info bar
       const infoBar = document.getElementById('infoBar');
       if (layoutType === 'groupby') {
         const groups = {};
@@ -283,30 +309,31 @@
           if (!groups[key]) groups[key] = [];
           groups[key].push(c);
         });
-        const infoParts = Object.entries(groups).map(([key, items]) => {
-          let val;
+        const infoParts = Object.entries(groups).map(function(entry) {
+          var key = entry[0], items = entry[1];
+          var val;
           if (agg === 'count') {
             val = items.length;
           } else {
-            const field = sizeBy || dim;
-            const nums = items.map(i => i[field]).filter(v => typeof v === 'number');
-            if (agg === 'sum') val = nums.reduce((a, b) => a + b, 0);
-            else if (agg === 'avg') val = nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length) : 0;
+            var field = sizeBy || dim;
+            var nums = items.map(function(i) { return i[field]; }).filter(function(v) { return typeof v === 'number'; });
+            if (agg === 'sum') val = nums.reduce(function(a, b) { return a + b; }, 0);
+            else if (agg === 'avg') val = nums.length ? Math.round(nums.reduce(function(a, b) { return a + b; }, 0) / nums.length) : 0;
             else if (agg === 'median') {
-              nums.sort((a, b) => a - b);
-              const mid = Math.floor(nums.length / 2);
+              nums.sort(function(a, b) { return a - b; });
+              var mid = Math.floor(nums.length / 2);
               val = nums.length % 2 ? nums[mid] : Math.round((nums[mid - 1] + nums[mid]) / 2);
             }
           }
-          return `<span class="info-item"><strong>${key}</strong>: ${typeof val === 'number' ? val.toLocaleString() : val}</span>`;
+          return '<span class="info-item"><strong>' + key + '</strong>: ' + (typeof val === 'number' ? val.toLocaleString() : val) + '</span>';
         });
         infoBar.innerHTML = infoParts.join('');
       } else {
-        infoBar.innerHTML = `<span class="info-item">${companies.length} items</span>`;
+        infoBar.innerHTML = '<span class="info-item">' + companies.length + ' items</span>';
       }
     }
 
-    document.querySelectorAll('select').forEach(sel => {
+    document.querySelectorAll('select').forEach(function(sel) {
       sel.addEventListener('change', updateViz);
     });
 

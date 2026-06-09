@@ -17,7 +17,7 @@ var JelloModule = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // src/index.ts
+  // lib/esm/index.js
   var index_exports = {};
   __export(index_exports, {
     default: () => index_default
@@ -160,6 +160,16 @@ var JelloModule = (() => {
     return stop < start2 ? -step1 : step1;
   }
 
+  // node_modules/d3-array/src/range.js
+  function range(start2, stop, step) {
+    start2 = +start2, stop = +stop, step = (n = arguments.length) < 2 ? (stop = start2, start2 = 0, 1) : n < 3 ? 1 : +step;
+    var i = -1, n = Math.max(0, Math.ceil((stop - start2) / step)) | 0, range2 = new Array(n);
+    while (++i < n) {
+      range2[i] = start2 + i * step;
+    }
+    return range2;
+  }
+
   // node_modules/d3-axis/src/identity.js
   function identity_default(x) {
     return x;
@@ -191,7 +201,7 @@ var JelloModule = (() => {
   function axis(orient, scale) {
     var tickArguments = [], tickValues = null, tickFormat2 = null, tickSizeInner = 6, tickSizeOuter = 6, tickPadding = 3, offset = typeof window !== "undefined" && window.devicePixelRatio > 1 ? 0 : 0.5, k = orient === top || orient === left ? -1 : 1, x = orient === left || orient === right ? "x" : "y", transform2 = orient === top || orient === bottom ? translateX : translateY;
     function axis2(context) {
-      var values = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain() : tickValues, format2 = tickFormat2 == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity_default : tickFormat2, spacing = Math.max(tickSizeInner, 0) + tickPadding, range = scale.range(), range0 = +range[0] + offset, range1 = +range[range.length - 1] + offset, position = (scale.bandwidth ? center : number2)(scale.copy(), offset), selection2 = context.selection ? context.selection() : context, path = selection2.selectAll(".domain").data([null]), tick = selection2.selectAll(".tick").data(values, scale).order(), tickExit = tick.exit(), tickEnter = tick.enter().append("g").attr("class", "tick"), line = tick.select("line"), text = tick.select("text");
+      var values = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain() : tickValues, format2 = tickFormat2 == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity_default : tickFormat2, spacing = Math.max(tickSizeInner, 0) + tickPadding, range2 = scale.range(), range0 = +range2[0] + offset, range1 = +range2[range2.length - 1] + offset, position = (scale.bandwidth ? center : number2)(scale.copy(), offset), selection2 = context.selection ? context.selection() : context, path = selection2.selectAll(".domain").data([null]), tick = selection2.selectAll(".tick").data(values, scale).order(), tickExit = tick.exit(), tickEnter = tick.enter().append("g").attr("class", "tick"), line = tick.select("line"), text = tick.select("text");
       path = path.merge(path.enter().insert("path", ".tick").attr("class", "domain").attr("stroke", "currentColor"));
       tick = tick.merge(tickEnter);
       line = line.merge(tickEnter.append("line").attr("stroke", "currentColor").attr(x + "2", k * tickSizeInner));
@@ -1488,7 +1498,7 @@ var JelloModule = (() => {
   }
 
   // node_modules/d3-interpolate/src/rgb.js
-  var rgb_default = (function rgbGamma(y) {
+  var rgb_default = function rgbGamma(y) {
     var color2 = gamma(y);
     function rgb2(start2, end) {
       var r = color2((start2 = rgb(start2)).r, (end = rgb(end)).r), g = color2(start2.g, end.g), b = color2(start2.b, end.b), opacity = nogamma(start2.opacity, end.opacity);
@@ -1502,7 +1512,7 @@ var JelloModule = (() => {
     }
     rgb2.gamma = rgbGamma;
     return rgb2;
-  })(1);
+  }(1);
   function rgbSpline(spline) {
     return function(colors) {
       var n = colors.length, r = new Array(n), g = new Array(n), b = new Array(n), i, color2;
@@ -3291,7 +3301,7 @@ var JelloModule = (() => {
   }
 
   // node_modules/d3-scale/src/init.js
-  function initRange(domain, range) {
+  function initRange(domain, range2) {
     switch (arguments.length) {
       case 0:
         break;
@@ -3299,23 +3309,23 @@ var JelloModule = (() => {
         this.range(domain);
         break;
       default:
-        this.range(range).domain(domain);
+        this.range(range2).domain(domain);
         break;
     }
     return this;
   }
 
   // node_modules/d3-scale/src/ordinal.js
-  var implicit = /* @__PURE__ */ Symbol("implicit");
+  var implicit = Symbol("implicit");
   function ordinal() {
-    var index = new InternMap(), domain = [], range = [], unknown = implicit;
+    var index = new InternMap(), domain = [], range2 = [], unknown = implicit;
     function scale(d) {
       let i = index.get(d);
       if (i === void 0) {
         if (unknown !== implicit) return unknown;
         index.set(d, i = domain.push(d) - 1);
       }
-      return range[i % range.length];
+      return range2[i % range2.length];
     }
     scale.domain = function(_) {
       if (!arguments.length) return domain.slice();
@@ -3327,16 +3337,68 @@ var JelloModule = (() => {
       return scale;
     };
     scale.range = function(_) {
-      return arguments.length ? (range = Array.from(_), scale) : range.slice();
+      return arguments.length ? (range2 = Array.from(_), scale) : range2.slice();
     };
     scale.unknown = function(_) {
       return arguments.length ? (unknown = _, scale) : unknown;
     };
     scale.copy = function() {
-      return ordinal(domain, range).unknown(unknown);
+      return ordinal(domain, range2).unknown(unknown);
     };
     initRange.apply(scale, arguments);
     return scale;
+  }
+
+  // node_modules/d3-scale/src/band.js
+  function band() {
+    var scale = ordinal().unknown(void 0), domain = scale.domain, ordinalRange = scale.range, r0 = 0, r1 = 1, step, bandwidth, round = false, paddingInner = 0, paddingOuter = 0, align = 0.5;
+    delete scale.unknown;
+    function rescale() {
+      var n = domain().length, reverse = r1 < r0, start2 = reverse ? r1 : r0, stop = reverse ? r0 : r1;
+      step = (stop - start2) / Math.max(1, n - paddingInner + paddingOuter * 2);
+      if (round) step = Math.floor(step);
+      start2 += (stop - start2 - step * (n - paddingInner)) * align;
+      bandwidth = step * (1 - paddingInner);
+      if (round) start2 = Math.round(start2), bandwidth = Math.round(bandwidth);
+      var values = range(n).map(function(i) {
+        return start2 + step * i;
+      });
+      return ordinalRange(reverse ? values.reverse() : values);
+    }
+    scale.domain = function(_) {
+      return arguments.length ? (domain(_), rescale()) : domain();
+    };
+    scale.range = function(_) {
+      return arguments.length ? ([r0, r1] = _, r0 = +r0, r1 = +r1, rescale()) : [r0, r1];
+    };
+    scale.rangeRound = function(_) {
+      return [r0, r1] = _, r0 = +r0, r1 = +r1, round = true, rescale();
+    };
+    scale.bandwidth = function() {
+      return bandwidth;
+    };
+    scale.step = function() {
+      return step;
+    };
+    scale.round = function(_) {
+      return arguments.length ? (round = !!_, rescale()) : round;
+    };
+    scale.padding = function(_) {
+      return arguments.length ? (paddingInner = Math.min(1, paddingOuter = +_), rescale()) : paddingInner;
+    };
+    scale.paddingInner = function(_) {
+      return arguments.length ? (paddingInner = Math.min(1, _), rescale()) : paddingInner;
+    };
+    scale.paddingOuter = function(_) {
+      return arguments.length ? (paddingOuter = +_, rescale()) : paddingOuter;
+    };
+    scale.align = function(_) {
+      return arguments.length ? (align = Math.max(0, Math.min(1, _)), rescale()) : align;
+    };
+    scale.copy = function() {
+      return band(domain(), [r0, r1]).round(round).paddingInner(paddingInner).paddingOuter(paddingOuter).align(align);
+    };
+    return initRange.apply(rescale(), arguments);
   }
 
   // node_modules/d3-scale/src/constant.js
@@ -3368,23 +3430,23 @@ var JelloModule = (() => {
       return Math.max(a, Math.min(b, x));
     };
   }
-  function bimap(domain, range, interpolate) {
-    var d0 = domain[0], d1 = domain[1], r0 = range[0], r1 = range[1];
+  function bimap(domain, range2, interpolate) {
+    var d0 = domain[0], d1 = domain[1], r0 = range2[0], r1 = range2[1];
     if (d1 < d0) d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
     else d0 = normalize(d0, d1), r0 = interpolate(r0, r1);
     return function(x) {
       return r0(d0(x));
     };
   }
-  function polymap(domain, range, interpolate) {
-    var j = Math.min(domain.length, range.length) - 1, d = new Array(j), r = new Array(j), i = -1;
+  function polymap(domain, range2, interpolate) {
+    var j = Math.min(domain.length, range2.length) - 1, d = new Array(j), r = new Array(j), i = -1;
     if (domain[j] < domain[0]) {
       domain = domain.slice().reverse();
-      range = range.slice().reverse();
+      range2 = range2.slice().reverse();
     }
     while (++i < j) {
       d[i] = normalize(domain[i], domain[i + 1]);
-      r[i] = interpolate(range[i], range[i + 1]);
+      r[i] = interpolate(range2[i], range2[i + 1]);
     }
     return function(x) {
       var i2 = bisect_default(domain, x, 1, j) - 1;
@@ -3395,28 +3457,28 @@ var JelloModule = (() => {
     return target.domain(source.domain()).range(source.range()).interpolate(source.interpolate()).clamp(source.clamp()).unknown(source.unknown());
   }
   function transformer() {
-    var domain = unit, range = unit, interpolate = value_default, transform2, untransform, unknown, clamp = identity2, piecewise, output, input;
+    var domain = unit, range2 = unit, interpolate = value_default, transform2, untransform, unknown, clamp = identity2, piecewise, output, input;
     function rescale() {
-      var n = Math.min(domain.length, range.length);
+      var n = Math.min(domain.length, range2.length);
       if (clamp !== identity2) clamp = clamper(domain[0], domain[n - 1]);
       piecewise = n > 2 ? polymap : bimap;
       output = input = null;
       return scale;
     }
     function scale(x) {
-      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise(domain.map(transform2), range, interpolate)))(transform2(clamp(x)));
+      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise(domain.map(transform2), range2, interpolate)))(transform2(clamp(x)));
     }
     scale.invert = function(y) {
-      return clamp(untransform((input || (input = piecewise(range, domain.map(transform2), number_default)))(y)));
+      return clamp(untransform((input || (input = piecewise(range2, domain.map(transform2), number_default)))(y)));
     };
     scale.domain = function(_) {
       return arguments.length ? (domain = Array.from(_, number3), rescale()) : domain.slice();
     };
     scale.range = function(_) {
-      return arguments.length ? (range = Array.from(_), rescale()) : range.slice();
+      return arguments.length ? (range2 = Array.from(_), rescale()) : range2.slice();
     };
     scale.rangeRound = function(_) {
-      return range = Array.from(_), interpolate = round_default, rescale();
+      return range2 = Array.from(_), interpolate = round_default, rescale();
     };
     scale.clamp = function(_) {
       return arguments.length ? (clamp = _ ? true : identity2, rescale()) : clamp !== identity2;
@@ -3542,8 +3604,8 @@ var JelloModule = (() => {
     translate: function(x, y) {
       return x === 0 & y === 0 ? this : new Transform(this.k, this.x + this.k * x, this.y + this.k * y);
     },
-    apply: function(point) {
-      return [point[0] * this.k + this.x, point[1] * this.k + this.y];
+    apply: function(point2) {
+      return [point2[0] * this.k + this.x, point2[1] * this.k + this.y];
     },
     applyX: function(x) {
       return x * this.k + this.x;
@@ -3577,89 +3639,60 @@ var JelloModule = (() => {
     return node.__zoom;
   }
 
-  // src/constants.ts
+  // lib/esm/constants.js
   var DEFAULT_COLOR = "#EEE";
   var FONT_FAMILY = "Lucida Grande, Tahoma, Verdana, Ar";
   var FONT_SIZE = 12;
   var FONT_COLOR = "#4B4F56";
   var AXIS_COLOR = "#DDD";
 
-  // src/utils.ts
+  // lib/esm/utils.js
   function createCircle(data, x, y, r, onClick, onMouseover, onMouseout) {
-    const circle = document.createElement("div");
-    circle.setAttribute("style", `
-    position: absolute;
-    left: ${x - r}px;
-    top: ${y - r}px;
-    border-radius: 50%;
-    width: ${r * 2}px;
-    height: ${r * 2}px;
-    padding: 0px;
-    background-size: cover;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: visable;
-    text-overflow: ellipsis;
-    color: ${FONT_COLOR};
-    font-size: ${FONT_SIZE}px;
-    font-family: ${FONT_FAMILY};
-  `);
-    const events = {
+    var circle = document.createElement("div");
+    circle.setAttribute("style", "\n    position: absolute;\n    left: " + (x - r) + "px;\n    top: " + (y - r) + "px;\n    border-radius: 50%;\n    width: " + r * 2 + "px;\n    height: " + r * 2 + "px;\n    padding: 0px;\n    background-size: cover;\n    box-sizing: border-box;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    overflow: visable;\n    text-overflow: ellipsis;\n    color: " + FONT_COLOR + ";\n    font-size: " + FONT_SIZE + "px;\n    font-family: " + FONT_FAMILY + ";\n  ");
+    var events = {
       "click": onClick,
       "mouseover": onMouseover,
       "mouseout": onMouseout
     };
-    for (let e in events) {
-      circle.addEventListener(e, (event) => {
-        events[e] && events[e](event, data);
+    var _loop_1 = function(e3) {
+      circle.addEventListener(e3, function(event) {
+        events[e3] && events[e3](event, data);
       });
+    };
+    for (var e in events) {
+      _loop_1(e);
     }
     return circle;
   }
   function createText(x, y, width, height, txt, z) {
-    const text = document.createElement("div");
-    const zIndex = z != null ? z : 1;
-    text.setAttribute("style", `
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    left: ${x - width / 2}px;
-    top: ${y - height / 2}px;
-    color: ${FONT_COLOR};
-    font-family: ${FONT_FAMILY};
-    font-size: ${FONT_SIZE};
-    width: ${width}px;
-    height: ${height}px;
-    zIndex: ${zIndex};
-    opacity: 0;
-    white-space: nowrap;
-  `);
+    var text = document.createElement("div");
+    var zIndex = z != null ? z : 1;
+    text.setAttribute("style", "\n    position: absolute;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    left: " + (x - width / 2) + "px;\n    top: " + (y - height / 2) + "px;\n    color: " + FONT_COLOR + ";\n    font-family: " + FONT_FAMILY + ";\n    font-size: " + FONT_SIZE + ";\n    width: " + width + "px;\n    height: " + height + "px;\n    zIndex: " + zIndex + ";\n    opacity: 0;\n    white-space: nowrap;\n  ");
     text.innerHTML += txt;
     return text;
   }
 
-  // src/layouts/LayoutBase.ts
-  var LayoutBase = class {
-    constructor(data, options, width, height) {
-      this.data = data;
-      this.options = options;
-      this.width = width;
-      this.height = height;
-    }
-    /**
-     * @returns this function returns the layout properties for each cricle,
-     *          as well as an optional div that contains the additional visuals to complement the layout
-     */
-    calculateCirclesLayout() {
-      return {
-        layoutProperties: {},
-        additionalVisual: null
+  // lib/esm/layouts/LayoutBase.js
+  var LayoutBase = (
+    /** @class */
+    function() {
+      function LayoutBase2(data, options, width, height) {
+        this.data = data;
+        this.options = options;
+        this.width = width;
+        this.height = height;
+      }
+      LayoutBase2.prototype.calculateCirclesLayout = function() {
+        return {
+          layoutProperties: {},
+          additionalVisual: null
+        };
       };
-    }
-  };
+      return LayoutBase2;
+    }()
+  );
+  var LayoutBase_default = LayoutBase;
 
   // node_modules/animejs/lib/anime.es.js
   var defaultInstanceSettings = {
@@ -3804,7 +3837,7 @@ var JelloModule = (() => {
       return Math.ceil(minMax(t, 1e-6, 1) * steps2) * (1 / steps2);
     };
   }
-  var bezier = (function() {
+  var bezier = function() {
     var kSplineTableSize = 11;
     var kSampleStepSize = 1 / (kSplineTableSize - 1);
     function A(aA1, aA2) {
@@ -3886,8 +3919,8 @@ var JelloModule = (() => {
       };
     }
     return bezier2;
-  })();
-  var penner = (function() {
+  }();
+  var penner = function() {
     var eases = { linear: function() {
       return function(t) {
         return t;
@@ -3955,7 +3988,7 @@ var JelloModule = (() => {
       };
     });
     return eases;
-  })();
+  }();
   function parseEasings(easing, duration) {
     if (is.fnc(easing)) {
       return easing;
@@ -4327,15 +4360,15 @@ var JelloModule = (() => {
     };
   }
   function getPathProgress(path, progress, isPathTargetInsideSVG) {
-    function point(offset) {
+    function point2(offset) {
       if (offset === void 0) offset = 0;
       var l = progress + offset >= 1 ? progress + offset : 0;
       return path.el.getPointAtLength(l);
     }
     var svg = getParentSvg(path.el, path.svg);
-    var p = point();
-    var p0 = point(-1);
-    var p1 = point(1);
+    var p = point2();
+    var p0 = point2(-1);
+    var p1 = point2(1);
     var scaleX = isPathTargetInsideSVG ? 1 : svg.w / svg.vW;
     var scaleY = isPathTargetInsideSVG ? 1 : svg.h / svg.vH;
     switch (path.property) {
@@ -4592,7 +4625,7 @@ var JelloModule = (() => {
     });
   }
   var activeInstances = [];
-  var engine = (function() {
+  var engine = function() {
     var raf;
     function play() {
       if (!raf && (!isDocumentHidden() || !anime.suspendWhenDocumentHidden) && activeInstances.length > 0) {
@@ -4633,7 +4666,7 @@ var JelloModule = (() => {
       document.addEventListener("visibilitychange", handleVisibilityChange);
     }
     return play;
-  })();
+  }();
   function isDocumentHidden() {
     return !!document && document.hidden;
   }
@@ -5219,678 +5252,986 @@ var JelloModule = (() => {
     return set4;
   }
 
-  // src/layouts/ClusterLayout.ts
-  var ClusterLayout = class extends LayoutBase {
-    constructor(data, options, width, height) {
-      super(data, options, width, height);
-    }
-    calculateCirclesLayout() {
-      const property = {};
-      const packLayout = pack_default().size([this.width, this.height]).padding(20);
-      const sizeByDim = this.options.sizeByDim;
-      let entries = this.data.map((entry) => {
-        property[entry.id] = {
-          x: this.width / 2,
-          y: this.height / 2,
-          r: 0,
-          display: true
-        };
-        return {
-          name: entry.id,
-          value: sizeByDim != null ? entry[sizeByDim] : 1,
-          ...entry
-        };
-      });
-      if (this.options.filters != null) {
-        entries = entries.filter((entry) => {
-          for (let dim in this.options.filters) {
-            const values = this.options.filters[dim];
-            if (values.indexOf(entry[dim]) < 0) {
-              property[entry.id].display = false;
-              return false;
-            }
-          }
-          return true;
-        });
-      }
-      let rootNode = hierarchy({ "name": "ALL", children: entries });
-      if (this.options.clusterByDim != null) {
-        let clusterByDim = this.options.clusterByDim;
-        const nested = nest_default().key((d) => d[clusterByDim]).entries(entries);
-        const converted = nested.map((item) => {
-          const value = item.values.reduce((total, child) => {
-            return total + child.value;
-          }, 0);
-          return {
-            id: item.key,
-            value,
-            children: item.values
-          };
-        });
-        rootNode = hierarchy({ "name": "ALL", children: converted });
-      }
-      rootNode.sum((d) => d.value);
-      packLayout(rootNode);
-      const clustersProperty = {};
-      rootNode.children.forEach((cluster) => {
-        clustersProperty[cluster.data.id] = {
-          // @ts-ignore
-          text: cluster.data.id,
-          // @ts-ignore
-          x: cluster.x,
-          // @ts-ignore
-          y: cluster.y,
-          // @ts-ignore
-          r: cluster.r
-        };
-        cluster.children.forEach((entry) => {
-          property[entry.data.id].x = entry.x;
-          property[entry.data.id].y = entry.y;
-          property[entry.data.id].r = entry.r;
-        });
-      });
-      const clusters = document.createElement("div");
-      clusters.innerHTML = "";
-      if (Object.keys(clustersProperty).length) {
-        for (let id2 in clustersProperty) {
-          const { x, y, r } = clustersProperty[id2];
-          const circle = createCircle(null, x, y, r);
-          clusters.appendChild(circle);
-          anime_es_default({
-            targets: [circle],
-            easing: "easeInOutSine",
-            border: "1px solid #BBB",
-            opacity: 0.5
-          });
-        }
-        for (let id2 in clustersProperty) {
-          const { x, y, r } = clustersProperty[id2];
-          const text = createText(x, y - r - 10, r * 2, 20, id2, 1e3);
-          clusters.appendChild(text);
-          anime_es_default({
-            targets: [text],
-            easing: "easeInOutSine",
-            opacity: 1
-          });
-        }
-      }
-      return {
-        layoutProperties: property,
-        additionalVisual: clusters
+  // lib/esm/layouts/ClusterLayout.js
+  var __extends = /* @__PURE__ */ function() {
+    var extendStatics = function(d, b) {
+      extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+        d2.__proto__ = b2;
+      } || function(d2, b2) {
+        for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
       };
-    }
+      return extendStatics(d, b);
+    };
+    return function(d, b) {
+      if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+      extendStatics(d, b);
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+  }();
+  var __assign = function() {
+    __assign = Object.assign || function(t) {
+      for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+          t[p] = s[p];
+      }
+      return t;
+    };
+    return __assign.apply(this, arguments);
   };
-
-  // src/layouts/DefaultLayout.ts
-  var DefaultLayout = class extends LayoutBase {
-    constructor(data, options, width, height) {
-      super(data, options, width, height);
-    }
-    calculateCirclesLayout() {
-      const layoutProperties = {};
-      const packLayout = pack_default().size([this.width, this.height]).padding(20);
-      const sizeByDim = this.options.sizeByDim;
-      let entries = this.data.map((entry) => {
-        layoutProperties[entry.id] = {
-          x: this.width / 2,
-          y: this.height / 2,
-          r: 0,
-          display: true
-        };
-        return {
-          name: entry.id,
-          value: sizeByDim != null ? entry[sizeByDim] : 1,
-          ...entry
-        };
-      });
-      if (this.options.filters != null) {
-        entries = entries.filter((entry) => {
-          for (let dim in this.options.filters) {
-            const values = this.options.filters[dim];
-            if (values.indexOf(entry[dim]) < 0) {
-              layoutProperties[entry.id].display = false;
-              return false;
-            }
-          }
-          return true;
-        });
+  var ClusterLayout = (
+    /** @class */
+    function(_super) {
+      __extends(ClusterLayout2, _super);
+      function ClusterLayout2(data, options, width, height) {
+        return _super.call(this, data, options, width, height) || this;
       }
-      let rootNode = hierarchy({ "name": "ALL", children: entries });
-      rootNode.sum((d) => d.value);
-      packLayout(rootNode);
-      rootNode?.children?.forEach((entry) => {
-        layoutProperties[entry.data.id].x = entry.x;
-        layoutProperties[entry.data.id].y = entry.y;
-        layoutProperties[entry.data.id].r = entry.r;
-      });
-      return {
-        layoutProperties,
-        additionalVisual: null
-      };
-    }
-  };
-
-  // src/layouts/GroupByLayout.ts
-  var GroupByLayout = class extends LayoutBase {
-    constructor(data, options, width, height) {
-      super(data, options, width, height);
-    }
-    calculateCirclesLayout() {
-      const property = {};
-      this.data.forEach((entry) => {
-        property[entry.id] = { x: 0, y: 0, r: 0, display: false };
-      });
-      const setting = this.options.groupBySetting;
-      if (!setting) {
-        return { layoutProperties: property, additionalVisual: null };
-      }
-      let entries = [...this.data];
-      if (this.options.filters != null) {
-        entries = entries.filter((entry) => {
-          for (let dim2 in this.options.filters) {
-            const values = this.options.filters[dim2];
-            if (values.indexOf(entry[dim2]) < 0) {
-              return false;
-            }
-          }
-          return true;
-        });
-      }
-      if (entries.length === 0) {
-        return { layoutProperties: property, additionalVisual: null };
-      }
-      const dim = setting.dim;
-      const agg = setting.agg;
-      const sortBy = setting.sortBy;
-      const sortOrder = setting.sortOrder;
-      const groups = {};
-      entries.forEach((entry) => {
-        const key = String(entry[dim]);
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(entry);
-      });
-      const groupEntries = [];
-      for (const key in groups) {
-        const items = groups[key];
-        const value = this._calculateAggregation(items, agg, dim);
-        groupEntries.push({ key, value });
-      }
-      groupEntries.sort((a, b) => {
-        let cmp;
-        if (sortBy === "dim") {
-          if (a.key < b.key) cmp = -1;
-          else if (a.key > b.key) cmp = 1;
-          else cmp = 0;
-        } else {
-          cmp = a.value - b.value;
-        }
-        return sortOrder === "desc" ? -cmp : cmp;
-      });
-      const packLayout = pack_default().size([this.width, this.height]).padding(20);
-      const rootData = {
-        children: groupEntries.map((g) => ({
-          id: g.key,
-          value: Math.max(g.value, 1e-3)
-        }))
-      };
-      const rootNode = hierarchy(rootData);
-      rootNode.sum((d) => d.value);
-      packLayout(rootNode);
-      const nodeMap = {};
-      if (rootNode.children) {
-        rootNode.children.forEach((node) => {
-          nodeMap[node.data.id] = node;
-        });
-      }
-      groupEntries.forEach((g) => {
-        const node = nodeMap[g.key];
-        if (node) {
-          property[g.key] = {
-            x: node.x,
-            y: node.y,
-            r: node.r,
+      ClusterLayout2.prototype.calculateCirclesLayout = function() {
+        var _this = this;
+        var property = {};
+        var packLayout = pack_default().size([this.width, this.height]).padding(20);
+        var sizeByDim = this.options.sizeByDim;
+        var entries = this.data.map(function(entry) {
+          property[entry.id] = {
+            x: _this.width / 2,
+            y: _this.height / 2,
+            r: 0,
             display: true
           };
-        }
-      });
-      const container = document.createElement("div");
-      if (rootNode.children) {
-        rootNode.children.forEach((node) => {
-          const circle = createCircle(null, node.x, node.y, node.r);
-          circle.style.background = DEFAULT_COLOR;
-          container.appendChild(circle);
-          anime_es_default({
-            targets: [circle],
-            easing: "easeInOutSine",
-            opacity: 0.7
-          });
-          const text = createText(node.x, node.y, node.r * 2, 20, node.data.id, 1e3);
-          container.appendChild(text);
-          anime_es_default({
-            targets: [text],
-            easing: "easeInOutSine",
-            opacity: 1
-          });
+          return __assign({ name: entry.id, value: sizeByDim != null ? entry[sizeByDim] : 1 }, entry);
         });
-      }
-      return {
-        layoutProperties: property,
-        additionalVisual: container
-      };
-    }
-    _calculateAggregation(items, agg, groupDim) {
-      if (agg === "count") {
-        return items.length;
-      }
-      const valueDim = this.options.sizeByDim || groupDim;
-      const values = [];
-      items.forEach((item) => {
-        const v = item[valueDim];
-        if (typeof v === "number") {
-          values.push(v);
-        }
-      });
-      if (values.length === 0) return 0;
-      if (agg === "sum") {
-        return values.reduce((a, b) => a + b, 0);
-      }
-      if (agg === "avg") {
-        return values.reduce((a, b) => a + b, 0) / values.length;
-      }
-      if (agg === "median") {
-        const sorted = [...values].sort((a, b) => a - b);
-        const mid = Math.floor(sorted.length / 2);
-        if (sorted.length % 2 === 1) {
-          return sorted[mid];
-        }
-        return (sorted[mid - 1] + sorted[mid]) / 2;
-      }
-      return 0;
-    }
-  };
-
-  // src/layouts/PlotLayout.ts
-  var PlotLayout = class extends LayoutBase {
-    constructor(data, options, width, height) {
-      super(data, options, width, height);
-    }
-    calculateCirclesLayout() {
-      const padding = 40;
-      const defaultLayout = new DefaultLayout(this.data, this.options, this.width, this.height);
-      const layoutProperties = defaultLayout.calculateCirclesLayout().layoutProperties;
-      let additionalVisual = null;
-      if (this.options.plotSetting != null) {
-        const setting = this.options.plotSetting;
-        const data = this.data.filter((entry) => layoutProperties[entry.id].display);
-        const xScale = this._getScale(data, setting.x, [padding, this.width - padding]);
-        const yScale = this._getScale(data, setting.y, [this.height - padding, padding]);
-        this.data.forEach((entry) => {
-          const props = layoutProperties[entry.id];
-          const xVal = entry[setting.x.dim];
-          const yVal = entry[setting.y.dim];
-          if (props.display && typeof xVal === "number" && typeof yVal === "number") {
-            props.x = xScale(xVal);
-            props.y = yScale(yVal);
-            if (setting.getCircleSize) {
-              props.r = setting.getCircleSize(entry);
+        if (this.options.filters != null) {
+          entries = entries.filter(function(entry) {
+            for (var dim in _this.options.filters) {
+              var values = _this.options.filters[dim];
+              if (values.indexOf(entry[dim]) < 0) {
+                property[entry.id].display = false;
+                return false;
+              }
             }
-          }
+            return true;
+          });
+        }
+        var rootNode = hierarchy({ "name": "ALL", children: entries });
+        if (this.options.clusterByDim != null) {
+          var clusterByDim_1 = this.options.clusterByDim;
+          var nested = nest_default().key(function(d) {
+            return d[clusterByDim_1];
+          }).entries(entries);
+          var converted = nested.map(function(item) {
+            var value = item.values.reduce(function(total, child) {
+              return total + child.value;
+            }, 0);
+            return {
+              id: item.key,
+              value,
+              children: item.values
+            };
+          });
+          rootNode = hierarchy({ "name": "ALL", children: converted });
+        }
+        rootNode.sum(function(d) {
+          return d.value;
         });
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        select_default2(svg).attr("width", this.width).attr("height", this.height);
-        select_default2(svg).append("g").style("color", AXIS_COLOR).attr("transform", `translate(0, ${this.height - padding})`).call(axisBottom(xScale)).selectAll("text").attr("transform", "translate(-10,0)rotate(-45)").style("text-anchor", "end").style("font-family", FONT_FAMILY).style("color", FONT_COLOR);
-        select_default2(svg).append("g").style("color", AXIS_COLOR).attr("transform", `translate(${padding}, 0)`).call(axisLeft(yScale)).selectAll("text").style("font-family", FONT_FAMILY).style("color", FONT_COLOR);
-        additionalVisual = document.createElement("div");
-        additionalVisual.appendChild(svg);
-      }
-      return {
-        layoutProperties,
-        additionalVisual
-      };
-    }
-    _getScale(data, setting, range) {
-      const vals = data.reduce((acc, entry) => {
-        const val = entry[setting.dim];
-        if (typeof val == "number") {
-          acc.push(val);
-        }
-        return acc;
-      }, []);
-      const [min2, max2] = [this._min(vals), this._max(vals)];
-      const domain = setting.order === "asc" ? [min2, max2] : [max2, min2];
-      return linear2().domain(domain).range(range);
-    }
-    _min(vals) {
-      if (!vals.length) {
-        throw Error("vals can not be empty");
-      }
-      let min2 = vals[0];
-      for (let v of vals) {
-        if (v < min2) {
-          min2 = v;
-        }
-      }
-      return min2;
-    }
-    _max(vals) {
-      if (!vals.length) {
-        throw Error("vals can not be empty");
-      }
-      let max2 = vals[0];
-      for (let v of vals) {
-        if (v > max2) {
-          max2 = v;
-        }
-      }
-      return max2;
-    }
-  };
-
-  // src/layouts/SortLayout.ts
-  var SortLayout = class extends LayoutBase {
-    constructor(data, options, width, height) {
-      super(data, options, width, height);
-    }
-    calculateCirclesLayout() {
-      const sortLabelProperty = {};
-      const labels = document.createElement("div");
-      labels.innerHTML = "";
-      const defaultLayout = new DefaultLayout(this.data, this.options, this.width, this.height);
-      const layoutProperties = defaultLayout.calculateCirclesLayout().layoutProperties;
-      if (this.options.sortSetting != null) {
-        const setting = this.options.sortSetting;
-        const flag = setting.order === "asc" ? 1 : -1;
-        const entries = [];
-        this.data.forEach((entry) => {
-          if (entry.id in layoutProperties && layoutProperties[entry.id].display) {
-            entries.push({
-              id: entry.id,
-              value: entry[setting.dim]
+        packLayout(rootNode);
+        var clustersProperty = {};
+        rootNode.children.forEach(function(cluster) {
+          clustersProperty[cluster.data.id] = {
+            // @ts-ignore
+            text: cluster.data.id,
+            // @ts-ignore
+            x: cluster.x,
+            // @ts-ignore
+            y: cluster.y,
+            // @ts-ignore
+            r: cluster.r
+          };
+          cluster.children.forEach(function(entry) {
+            property[entry.data.id].x = entry.x;
+            property[entry.data.id].y = entry.y;
+            property[entry.data.id].r = entry.r;
+          });
+        });
+        var clusters = document.createElement("div");
+        clusters.innerHTML = "";
+        if (Object.keys(clustersProperty).length) {
+          for (var id2 in clustersProperty) {
+            var _a = clustersProperty[id2], x = _a.x, y = _a.y, r = _a.r;
+            var circle = createCircle(null, x, y, r);
+            clusters.appendChild(circle);
+            anime_es_default({
+              targets: [circle],
+              easing: "easeInOutSine",
+              border: "1px solid #BBB",
+              opacity: 0.5
             });
           }
-        });
-        entries.sort((a, b) => {
-          if (a.value > b.value) {
-            return flag;
-          } else {
-            return flag * -1;
+          for (var id2 in clustersProperty) {
+            var _b = clustersProperty[id2], x = _b.x, y = _b.y, r = _b.r;
+            var text = createText(x, y - r - 10, r * 2, 20, id2, 1e3);
+            clusters.appendChild(text);
+            anime_es_default({
+              targets: [text],
+              easing: "easeInOutSine",
+              opacity: 1
+            });
           }
-        });
-        let offset = 10;
-        for (let i = 0; i < entries.length; i++) {
-          const props = layoutProperties[entries[i].id];
-          sortLabelProperty[entries[i].id] = {
-            x: offset + props.r,
-            y: this.height / 2 + props.r + 20,
-            width: props.r * 2,
-            label: entries[i].value
-          };
-          props.x = offset + props.r;
-          props.y = this.height / 2;
-          offset += 2 * props.r + 10;
         }
+        return {
+          layoutProperties: property,
+          additionalVisual: clusters
+        };
+      };
+      return ClusterLayout2;
+    }(LayoutBase_default)
+  );
+  var ClusterLayout_default = ClusterLayout;
+
+  // lib/esm/layouts/DefaultLayout.js
+  var __extends2 = /* @__PURE__ */ function() {
+    var extendStatics = function(d, b) {
+      extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+        d2.__proto__ = b2;
+      } || function(d2, b2) {
+        for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
+      };
+      return extendStatics(d, b);
+    };
+    return function(d, b) {
+      if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+      extendStatics(d, b);
+      function __() {
+        this.constructor = d;
       }
-      if (sortLabelProperty && Object.keys(sortLabelProperty).length) {
-        for (let id2 in sortLabelProperty) {
-          const { x, y, width, label } = sortLabelProperty[id2];
-          const text = createText(x, y, width, 10, label, 1);
-          labels.appendChild(text);
-          anime_es_default({
-            targets: [text],
-            opacity: 1,
-            easing: "easeInOutSine"
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+  }();
+  var __assign2 = function() {
+    __assign2 = Object.assign || function(t) {
+      for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+          t[p] = s[p];
+      }
+      return t;
+    };
+    return __assign2.apply(this, arguments);
+  };
+  var DefaultLayout = (
+    /** @class */
+    function(_super) {
+      __extends2(DefaultLayout2, _super);
+      function DefaultLayout2(data, options, width, height) {
+        return _super.call(this, data, options, width, height) || this;
+      }
+      DefaultLayout2.prototype.calculateCirclesLayout = function() {
+        var _this = this;
+        var _a;
+        var layoutProperties = {};
+        var packLayout = pack_default().size([this.width, this.height]).padding(20);
+        var sizeByDim = this.options.sizeByDim;
+        var entries = this.data.map(function(entry) {
+          layoutProperties[entry.id] = {
+            x: _this.width / 2,
+            y: _this.height / 2,
+            r: 0,
+            display: true
+          };
+          return __assign2({ name: entry.id, value: sizeByDim != null ? entry[sizeByDim] : 1 }, entry);
+        });
+        if (this.options.filters != null) {
+          entries = entries.filter(function(entry) {
+            for (var dim in _this.options.filters) {
+              var values = _this.options.filters[dim];
+              if (values.indexOf(entry[dim]) < 0) {
+                layoutProperties[entry.id].display = false;
+                return false;
+              }
+            }
+            return true;
           });
         }
-      }
-      ;
-      return {
-        layoutProperties,
-        additionalVisual: labels
-      };
-    }
-  };
-
-  // src/index.ts
-  var Jello = class {
-    /**
-     *
-     * @param {*} container the containing div
-     * @param {*} data the list of entities to visualize in the format of {id, attribute_A, attribute_B, ...}
-     * @param {*} options available settings {clusterByDim, colorByDim, sortSetting...}
-     */
-    constructor(container, data, options) {
-      container.innerHTML = "";
-      this.container = container;
-      this.additionalVisualDiv = document.createElement("div");
-      this.circleDiv = document.createElement("div");
-      this.container.appendChild(this.additionalVisualDiv);
-      this.container.appendChild(this.circleDiv);
-      this.width = container.offsetWidth;
-      this.height = container.offsetHeight;
-      this.data = data;
-      this.options = options;
-      this.options.layout = this.options.layout || "default";
-      this.originalOptions = { ...this.options };
-      this._initLayoutManager();
-      this.circles = {};
-      this.cirlcesProperty = {};
-      this.data.forEach((entry) => {
-        this.cirlcesProperty[entry.id] = {
-          x: 0,
-          y: 0,
-          r: 0,
-          color: DEFAULT_COLOR,
-          imgURL: null,
-          label: null,
-          display: true,
-          _data: entry
+        var rootNode = hierarchy({ "name": "ALL", children: entries });
+        rootNode.sum(function(d) {
+          return d.value;
+        });
+        packLayout(rootNode);
+        (_a = rootNode === null || rootNode === void 0 ? void 0 : rootNode.children) === null || _a === void 0 ? void 0 : _a.forEach(function(entry) {
+          layoutProperties[entry.data.id].x = entry.x;
+          layoutProperties[entry.data.id].y = entry.y;
+          layoutProperties[entry.data.id].r = entry.r;
+        });
+        return {
+          layoutProperties,
+          additionalVisual: null
         };
-      });
-      this.container.addEventListener("click", (event) => {
-        this.options.onCanvasClick && this.options.onCanvasClick(event);
-      });
-    }
-    render() {
-      this.additionalVisualDiv.innerHTML = "";
-      this._updateCircleLayout();
-      this._updateCircleColor();
-      this._updateCircleImage();
-      this._updateCircleLabel();
-      this._renderCirles();
-      return this;
-    }
-    updateWidthHeight() {
-      this.width = this.container.offsetWidth;
-      this.height = this.container.offsetHeight;
-      this._initLayoutManager();
-      return this;
-    }
-    labelBy(dim) {
-      this.options.labelByDim = this._sanitizeDimension(dim);
-      return this;
-    }
-    colorBy(dim) {
-      this.options.colorByDim = this._sanitizeDimension(dim);
-      if (this.options.colorByDim != null) {
-        this.options.displayImageByDim = null;
-      }
-      return this;
-    }
-    sizeBy(dim) {
-      this.options.sizeByDim = this._sanitizeDimension(dim);
-      return this;
-    }
-    clusterBy(dim) {
-      this.options.clusterByDim = this._sanitizeDimension(dim);
-      if (dim === null) {
-        return this;
-      }
-      this.options.layout = "cluster";
-      return this;
-    }
-    filterBy(filters) {
-      const sanitized = {};
-      for (let dim in filters) {
-        const sanitizedDim = this._sanitizeDimension(dim);
-        if (sanitizedDim !== null) {
-          sanitized[dim] = filters[dim];
-        }
-      }
-      this.options.filters = Object.keys(sanitized).length > 0 ? sanitized : null;
-      return this;
-    }
-    sortBy(setting) {
-      const { dim } = setting != null ? setting : { dim: null };
-      const sanitized = this._sanitizeDimension(dim);
-      if (sanitized != null) {
-        this.options.sortSetting = sanitized !== null ? setting : null;
-        this.options.layout = "sort";
-      }
-      return this;
-    }
-    plotBy(setting) {
-      const xDim = setting?.x?.dim ?? null;
-      const yDim = setting?.y?.dim ?? null;
-      const xSanitized = this._sanitizeDimension(xDim);
-      const ySanitized = this._sanitizeDimension(yDim);
-      if (xSanitized != null && ySanitized != null && typeof this.data[0][xSanitized] === "number" && typeof this.data[0][ySanitized] === "number") {
-        this.options.plotSetting = setting;
-        this.options.layout = "plot";
-      } else {
-        console.log("plotBy will no take effect because some of the dimensions are not available or the values for the dimension are not numbers.");
-      }
-      return this;
-    }
-    groupBy(setting) {
-      if (setting === null) {
-        this.options.groupBySetting = null;
-        this.options.layout = "default";
-        return this;
-      }
-      const sanitized = this._sanitizeDimension(setting.dim);
-      if (sanitized != null) {
-        this.options.groupBySetting = setting;
-        this.options.layout = "group by";
-      }
-      return this;
-    }
-    displayImageBy(dim) {
-      this.options.displayImageByDim = this._sanitizeDimension(dim);
-      if (this.options.displayImageByDim != null) {
-        this.options.colorByDim = null;
-      }
-      return this;
-    }
-    reset() {
-      this.options = { ...this.originalOptions };
-      this._initLayoutManager();
-      return this;
-    }
-    _initLayoutManager() {
-      this.layoutManager = {
-        "default": new DefaultLayout(this.data, this.options, this.width, this.height),
-        "cluster": new ClusterLayout(this.data, this.options, this.width, this.height),
-        "sort": new SortLayout(this.data, this.options, this.width, this.height),
-        "plot": new PlotLayout(this.data, this.options, this.width, this.height),
-        "group by": new GroupByLayout(this.data, this.options, this.width, this.height)
       };
-    }
-    _renderCirles() {
-      if (!Object.keys(this.circles).length) {
-        this.data.forEach((entry) => {
-          const { _data, x, y, r, display } = this.cirlcesProperty[entry.id];
-          const radius = display ? r : 0;
-          const circle = createCircle(_data, x, y, radius, this.options.onClick, this.options.onMouseover, this.options.onMouseout);
-          this.circleDiv.appendChild(circle);
-          this.circles[entry.id] = circle;
-        });
+      return DefaultLayout2;
+    }(LayoutBase_default)
+  );
+  var DefaultLayout_default = DefaultLayout;
+
+  // lib/esm/layouts/GroupByLayout.js
+  var __extends3 = /* @__PURE__ */ function() {
+    var extendStatics = function(d, b) {
+      extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+        d2.__proto__ = b2;
+      } || function(d2, b2) {
+        for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
+      };
+      return extendStatics(d, b);
+    };
+    return function(d, b) {
+      if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+      extendStatics(d, b);
+      function __() {
+        this.constructor = d;
       }
-      for (let id2 in this.circles) {
-        const { x, y, r, color: color2, display, imgURL, label } = this.cirlcesProperty[id2];
-        const size = display ? r * 2 : 0;
-        const opacity = color2 != null ? 0.7 : 0;
-        const bg = this.options.displayImageByDim != null ? ` url(${imgURL}) no-repeat` : color2;
-        this.circles[id2].style.background = bg;
-        this.circles[id2].style.backgroundSize = "cover";
-        this.circles[id2].innerHTML = display && label != null ? label : "";
-        anime_es_default({
-          targets: [this.circles[id2]],
-          easing: "easeInOutSine",
-          left: x - r,
-          top: y - r,
-          width: size,
-          height: size,
-          duration: 700,
-          opacity
-        });
-      }
-    }
-    _sanitizeDimension(dim) {
-      if (dim != null && this.data && this.data.length) {
-        if (dim in this.data[0]) {
-          return dim;
-        } else {
-          console.log(`${dim} is not valid property. It will not take any effect.`);
-          return null;
-        }
-      }
-      return null;
-    }
-    _updateCircleLayout() {
-      const layout = this.options.layout || "default";
-      const { layoutProperties, additionalVisual } = this.layoutManager[layout].calculateCirclesLayout();
-      for (let id2 in layoutProperties) {
-        if (id2 in this.cirlcesProperty) {
-          this.cirlcesProperty[id2].x = layoutProperties[id2].x;
-          this.cirlcesProperty[id2].y = layoutProperties[id2].y;
-          this.cirlcesProperty[id2].r = layoutProperties[id2].r;
-          this.cirlcesProperty[id2].display = layoutProperties[id2].display;
-        }
-      }
-      if (additionalVisual !== null) {
-        this.additionalVisualDiv.appendChild(additionalVisual);
-      }
-    }
-    _updateCircleColor() {
-      if (this.options.colorByDim == null) {
-        this.data.forEach((entry) => {
-          this.cirlcesProperty[entry.id].color = DEFAULT_COLOR;
-        });
-      } else {
-        const colorByDim = this.options.colorByDim;
-        const distinctValues = [...new Set(this.data.map((entry) => entry[colorByDim]))];
-        this.data.map((entry) => entry[colorByDim]);
-        const colorPicker = ordinal().domain(distinctValues).range(Set3_default);
-        this.data.forEach((entry) => {
-          this.cirlcesProperty[entry.id].color = colorPicker(entry[colorByDim]);
-        });
-      }
-    }
-    _updateCircleImage() {
-      if (this.options.displayImageByDim != null) {
-        const dim = this.options.displayImageByDim;
-        this.data.forEach((entry) => {
-          this.cirlcesProperty[entry.id].imgURL = entry[dim];
-        });
-      } else {
-        this.data.forEach((entry) => {
-          this.cirlcesProperty[entry.id].imgURL = null;
-        });
-      }
-    }
-    _updateCircleLabel() {
-      if (this.options.labelByDim != null) {
-        const dim = this.options.labelByDim;
-        this.data.forEach((entry) => {
-          this.cirlcesProperty[entry.id].label = entry[dim];
-        });
-      } else {
-        this.data.forEach((entry) => {
-          this.cirlcesProperty[entry.id].label = null;
-        });
-      }
-    }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+  }();
+  var __spreadArray = function(to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+      to[j] = from[i];
+    return to;
   };
+  var GroupByLayout = (
+    /** @class */
+    function(_super) {
+      __extends3(GroupByLayout2, _super);
+      function GroupByLayout2(data, options, width, height) {
+        return _super.call(this, data, options, width, height) || this;
+      }
+      GroupByLayout2.prototype.calculateCirclesLayout = function() {
+        var _this = this;
+        var property = {};
+        this.data.forEach(function(entry) {
+          property[entry.id] = { x: 0, y: 0, r: 0, display: false };
+        });
+        var setting = this.options.groupBySetting;
+        if (!setting) {
+          return { layoutProperties: property, additionalVisual: null };
+        }
+        var entries = __spreadArray([], this.data);
+        if (this.options.filters != null) {
+          entries = entries.filter(function(entry) {
+            for (var dim_1 in _this.options.filters) {
+              var values = _this.options.filters[dim_1];
+              if (values.indexOf(entry[dim_1]) < 0) {
+                return false;
+              }
+            }
+            return true;
+          });
+        }
+        if (entries.length === 0) {
+          return { layoutProperties: property, additionalVisual: null };
+        }
+        var dim = setting.dim;
+        var agg = setting.agg;
+        var sortBy = setting.sortBy;
+        var sortOrder = setting.sortOrder;
+        var renderAs = setting.renderAs || "circles";
+        var groups = {};
+        entries.forEach(function(entry) {
+          var key2 = String(entry[dim]);
+          if (!groups[key2])
+            groups[key2] = [];
+          groups[key2].push(entry);
+        });
+        var groupEntries = [];
+        for (var key in groups) {
+          var items = groups[key];
+          var value = this._calculateAggregation(items, agg, dim);
+          groupEntries.push({ key, value });
+        }
+        groupEntries.sort(function(a, b) {
+          var cmp;
+          if (sortBy === "dim") {
+            if (a.key < b.key)
+              cmp = -1;
+            else if (a.key > b.key)
+              cmp = 1;
+            else
+              cmp = 0;
+          } else {
+            cmp = a.value - b.value;
+          }
+          return sortOrder === "desc" ? -cmp : cmp;
+        });
+        if (renderAs === "bars") {
+          return this._renderBars(groupEntries, property);
+        }
+        return this._renderCircles(groupEntries, property);
+      };
+      GroupByLayout2.prototype._renderCircles = function(groupEntries, property) {
+        var packLayout = pack_default().size([this.width, this.height]).padding(20);
+        var rootData = {
+          children: groupEntries.map(function(g) {
+            return {
+              id: g.key,
+              value: Math.max(g.value, 1e-3)
+            };
+          })
+        };
+        var rootNode = hierarchy(rootData);
+        rootNode.sum(function(d) {
+          return d.value;
+        });
+        packLayout(rootNode);
+        var nodeMap = {};
+        if (rootNode.children) {
+          rootNode.children.forEach(function(node) {
+            nodeMap[node.data.id] = node;
+          });
+        }
+        groupEntries.forEach(function(g) {
+          var node = nodeMap[g.key];
+          if (node) {
+            property[g.key] = {
+              x: node.x,
+              y: node.y,
+              r: node.r,
+              display: true
+            };
+          }
+        });
+        var container = document.createElement("div");
+        if (rootNode.children) {
+          rootNode.children.forEach(function(node) {
+            var circle = createCircle(null, node.x, node.y, node.r);
+            circle.style.background = DEFAULT_COLOR;
+            container.appendChild(circle);
+            anime_es_default({
+              targets: [circle],
+              easing: "easeInOutSine",
+              opacity: 0.7
+            });
+            var text = createText(node.x, node.y, node.r * 2, 20, node.data.id, 1e3);
+            container.appendChild(text);
+            anime_es_default({
+              targets: [text],
+              easing: "easeInOutSine",
+              opacity: 1
+            });
+          });
+        }
+        return {
+          layoutProperties: property,
+          additionalVisual: container
+        };
+      };
+      GroupByLayout2.prototype._renderBars = function(groupEntries, property) {
+        var padding = { top: 20, right: 40, bottom: 40, left: 80 };
+        var chartWidth = this.width - padding.left - padding.right;
+        var chartHeight = this.height - padding.top - padding.bottom;
+        var maxValue = Math.max.apply(Math, __spreadArray(__spreadArray([], groupEntries.map(function(g) {
+          return g.value;
+        })), [1e-3]));
+        var xScale = linear2().domain([0, maxValue]).range([0, chartWidth]);
+        var yScale = band().domain(groupEntries.map(function(g) {
+          return g.key;
+        })).range([0, chartHeight]).padding(0.2);
+        var barHeight = yScale.bandwidth();
+        var container = document.createElement("div");
+        container.style.position = "relative";
+        container.style.width = this.width + "px";
+        container.style.height = this.height + "px";
+        groupEntries.forEach(function(g) {
+          var barWidth = xScale(g.value);
+          var barX = padding.left;
+          var barY = padding.top + (yScale(g.key) || 0);
+          var bar = document.createElement("div");
+          bar.setAttribute("style", [
+            "position: absolute",
+            "left: " + barX + "px",
+            "top: " + barY + "px",
+            "width: 0px",
+            "height: " + barHeight + "px",
+            "background: " + DEFAULT_COLOR,
+            "border-radius: 50%",
+            "opacity: 0",
+            "box-sizing: border-box"
+          ].join("; "));
+          container.appendChild(bar);
+          anime_es_default({
+            targets: [bar],
+            easing: "easeInOutSine",
+            width: barWidth,
+            borderRadius: 0,
+            opacity: 0.7,
+            duration: 700
+          });
+          var label = document.createElement("div");
+          label.setAttribute("style", [
+            "position: absolute",
+            "left: 0px",
+            "top: " + barY + "px",
+            "width: " + (padding.left - 8) + "px",
+            "height: " + barHeight + "px",
+            "display: flex",
+            "align-items: center",
+            "justify-content: flex-end",
+            "color: " + FONT_COLOR,
+            "font-family: " + FONT_FAMILY,
+            "font-size: " + FONT_SIZE + "px",
+            "opacity: 0",
+            "white-space: nowrap",
+            "overflow: hidden",
+            "text-overflow: ellipsis"
+          ].join("; "));
+          label.textContent = g.key;
+          container.appendChild(label);
+          anime_es_default({
+            targets: [label],
+            easing: "easeInOutSine",
+            opacity: 1,
+            duration: 700
+          });
+          var valueLabel = document.createElement("div");
+          valueLabel.setAttribute("style", [
+            "position: absolute",
+            "left: " + (barX + barWidth + 4) + "px",
+            "top: " + barY + "px",
+            "height: " + barHeight + "px",
+            "display: flex",
+            "align-items: center",
+            "color: " + FONT_COLOR,
+            "font-family: " + FONT_FAMILY,
+            "font-size: " + FONT_SIZE + "px",
+            "opacity: 0"
+          ].join("; "));
+          valueLabel.textContent = String(Math.round(g.value * 100) / 100);
+          container.appendChild(valueLabel);
+          anime_es_default({
+            targets: [valueLabel],
+            easing: "easeInOutSine",
+            opacity: 1,
+            duration: 700
+          });
+        });
+        var axisLine = document.createElement("div");
+        axisLine.setAttribute("style", [
+          "position: absolute",
+          "left: " + padding.left + "px",
+          "top: " + (padding.top + chartHeight) + "px",
+          "width: " + chartWidth + "px",
+          "height: 1px",
+          "background: " + AXIS_COLOR
+        ].join("; "));
+        container.appendChild(axisLine);
+        return {
+          layoutProperties: property,
+          additionalVisual: container
+        };
+      };
+      GroupByLayout2.prototype._calculateAggregation = function(items, agg, groupDim) {
+        if (agg === "count") {
+          return items.length;
+        }
+        var valueDim = this.options.sizeByDim || groupDim;
+        var values = [];
+        items.forEach(function(item) {
+          var v = item[valueDim];
+          if (typeof v === "number") {
+            values.push(v);
+          }
+        });
+        if (values.length === 0)
+          return 0;
+        if (agg === "sum") {
+          return values.reduce(function(a, b) {
+            return a + b;
+          }, 0);
+        }
+        if (agg === "avg") {
+          return values.reduce(function(a, b) {
+            return a + b;
+          }, 0) / values.length;
+        }
+        if (agg === "median") {
+          var sorted = __spreadArray([], values).sort(function(a, b) {
+            return a - b;
+          });
+          var mid = Math.floor(sorted.length / 2);
+          if (sorted.length % 2 === 1) {
+            return sorted[mid];
+          }
+          return (sorted[mid - 1] + sorted[mid]) / 2;
+        }
+        return 0;
+      };
+      return GroupByLayout2;
+    }(LayoutBase_default)
+  );
+  var GroupByLayout_default = GroupByLayout;
+
+  // lib/esm/layouts/PlotLayout.js
+  var __extends4 = /* @__PURE__ */ function() {
+    var extendStatics = function(d, b) {
+      extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+        d2.__proto__ = b2;
+      } || function(d2, b2) {
+        for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
+      };
+      return extendStatics(d, b);
+    };
+    return function(d, b) {
+      if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+      extendStatics(d, b);
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+  }();
+  var PlotLayout = (
+    /** @class */
+    function(_super) {
+      __extends4(PlotLayout2, _super);
+      function PlotLayout2(data, options, width, height) {
+        return _super.call(this, data, options, width, height) || this;
+      }
+      PlotLayout2.prototype.calculateCirclesLayout = function() {
+        var padding = 40;
+        var defaultLayout = new DefaultLayout_default(this.data, this.options, this.width, this.height);
+        var layoutProperties = defaultLayout.calculateCirclesLayout().layoutProperties;
+        var additionalVisual = null;
+        if (this.options.plotSetting != null) {
+          var setting_1 = this.options.plotSetting;
+          var data = this.data.filter(function(entry) {
+            return layoutProperties[entry.id].display;
+          });
+          var xScale_1 = this._getScale(data, setting_1.x, [padding, this.width - padding]);
+          var yScale_1 = this._getScale(data, setting_1.y, [this.height - padding, padding]);
+          this.data.forEach(function(entry) {
+            var props = layoutProperties[entry.id];
+            var xVal = entry[setting_1.x.dim];
+            var yVal = entry[setting_1.y.dim];
+            if (props.display && typeof xVal === "number" && typeof yVal === "number") {
+              props.x = xScale_1(xVal);
+              props.y = yScale_1(yVal);
+              if (setting_1.getCircleSize) {
+                props.r = setting_1.getCircleSize(entry);
+              }
+            }
+          });
+          var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          select_default2(svg).attr("width", this.width).attr("height", this.height);
+          select_default2(svg).append("g").style("color", AXIS_COLOR).attr("transform", "translate(0, " + (this.height - padding) + ")").call(axisBottom(xScale_1)).selectAll("text").attr("transform", "translate(-10,0)rotate(-45)").style("text-anchor", "end").style("font-family", FONT_FAMILY).style("color", FONT_COLOR);
+          select_default2(svg).append("g").style("color", AXIS_COLOR).attr("transform", "translate(" + padding + ", 0)").call(axisLeft(yScale_1)).selectAll("text").style("font-family", FONT_FAMILY).style("color", FONT_COLOR);
+          additionalVisual = document.createElement("div");
+          additionalVisual.appendChild(svg);
+        }
+        return {
+          layoutProperties,
+          additionalVisual
+        };
+      };
+      PlotLayout2.prototype._getScale = function(data, setting, range2) {
+        var vals = data.reduce(function(acc, entry) {
+          var val = entry[setting.dim];
+          if (typeof val == "number") {
+            acc.push(val);
+          }
+          return acc;
+        }, []);
+        var _a = [this._min(vals), this._max(vals)], min2 = _a[0], max2 = _a[1];
+        var domain = setting.order === "asc" ? [min2, max2] : [max2, min2];
+        return linear2().domain(domain).range(range2);
+      };
+      PlotLayout2.prototype._min = function(vals) {
+        if (!vals.length) {
+          throw Error("vals can not be empty");
+        }
+        var min2 = vals[0];
+        for (var _i = 0, vals_1 = vals; _i < vals_1.length; _i++) {
+          var v = vals_1[_i];
+          if (v < min2) {
+            min2 = v;
+          }
+        }
+        return min2;
+      };
+      PlotLayout2.prototype._max = function(vals) {
+        if (!vals.length) {
+          throw Error("vals can not be empty");
+        }
+        var max2 = vals[0];
+        for (var _i = 0, vals_2 = vals; _i < vals_2.length; _i++) {
+          var v = vals_2[_i];
+          if (v > max2) {
+            max2 = v;
+          }
+        }
+        return max2;
+      };
+      return PlotLayout2;
+    }(LayoutBase_default)
+  );
+  var PlotLayout_default = PlotLayout;
+
+  // lib/esm/layouts/SortLayout.js
+  var __extends5 = /* @__PURE__ */ function() {
+    var extendStatics = function(d, b) {
+      extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+        d2.__proto__ = b2;
+      } || function(d2, b2) {
+        for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
+      };
+      return extendStatics(d, b);
+    };
+    return function(d, b) {
+      if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+      extendStatics(d, b);
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+  }();
+  var SortLayout = (
+    /** @class */
+    function(_super) {
+      __extends5(SortLayout2, _super);
+      function SortLayout2(data, options, width, height) {
+        return _super.call(this, data, options, width, height) || this;
+      }
+      SortLayout2.prototype.calculateCirclesLayout = function() {
+        var sortLabelProperty = {};
+        var labels = document.createElement("div");
+        labels.innerHTML = "";
+        var defaultLayout = new DefaultLayout_default(this.data, this.options, this.width, this.height);
+        var layoutProperties = defaultLayout.calculateCirclesLayout().layoutProperties;
+        if (this.options.sortSetting != null) {
+          var setting_1 = this.options.sortSetting;
+          var flag_1 = setting_1.order === "asc" ? 1 : -1;
+          var entries_1 = [];
+          this.data.forEach(function(entry) {
+            if (entry.id in layoutProperties && layoutProperties[entry.id].display) {
+              entries_1.push({
+                id: entry.id,
+                value: entry[setting_1.dim]
+              });
+            }
+          });
+          entries_1.sort(function(a, b) {
+            if (a.value > b.value) {
+              return flag_1;
+            } else {
+              return flag_1 * -1;
+            }
+          });
+          var offset = 10;
+          for (var i = 0; i < entries_1.length; i++) {
+            var props = layoutProperties[entries_1[i].id];
+            sortLabelProperty[entries_1[i].id] = {
+              x: offset + props.r,
+              y: this.height / 2 + props.r + 20,
+              width: props.r * 2,
+              label: entries_1[i].value
+            };
+            props.x = offset + props.r;
+            props.y = this.height / 2;
+            offset += 2 * props.r + 10;
+          }
+        }
+        if (sortLabelProperty && Object.keys(sortLabelProperty).length) {
+          for (var id2 in sortLabelProperty) {
+            var _a = sortLabelProperty[id2], x = _a.x, y = _a.y, width = _a.width, label = _a.label;
+            var text = createText(x, y, width, 10, label, 1);
+            labels.appendChild(text);
+            anime_es_default({
+              targets: [text],
+              opacity: 1,
+              easing: "easeInOutSine"
+            });
+          }
+        }
+        ;
+        return {
+          layoutProperties,
+          additionalVisual: labels
+        };
+      };
+      return SortLayout2;
+    }(LayoutBase_default)
+  );
+  var SortLayout_default = SortLayout;
+
+  // lib/esm/index.js
+  var __assign3 = function() {
+    __assign3 = Object.assign || function(t) {
+      for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+          t[p] = s[p];
+      }
+      return t;
+    };
+    return __assign3.apply(this, arguments);
+  };
+  var __spreadArray2 = function(to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+      to[j] = from[i];
+    return to;
+  };
+  var Jello = (
+    /** @class */
+    function() {
+      function Jello2(container, data, options) {
+        var _this = this;
+        container.innerHTML = "";
+        this.container = container;
+        this.additionalVisualDiv = document.createElement("div");
+        this.circleDiv = document.createElement("div");
+        this.container.appendChild(this.additionalVisualDiv);
+        this.container.appendChild(this.circleDiv);
+        this.width = container.offsetWidth;
+        this.height = container.offsetHeight;
+        this.data = data;
+        this.options = options;
+        this.options.layout = this.options.layout || "default";
+        this.originalOptions = __assign3({}, this.options);
+        this._initLayoutManager();
+        this.circles = {};
+        this.cirlcesProperty = {};
+        this.data.forEach(function(entry) {
+          _this.cirlcesProperty[entry.id] = {
+            x: 0,
+            y: 0,
+            r: 0,
+            color: DEFAULT_COLOR,
+            imgURL: null,
+            label: null,
+            display: true,
+            _data: entry
+          };
+        });
+        this.container.addEventListener("click", function(event) {
+          _this.options.onCanvasClick && _this.options.onCanvasClick(event);
+        });
+      }
+      Jello2.prototype.render = function() {
+        this.additionalVisualDiv.innerHTML = "";
+        this._updateCircleLayout();
+        this._updateCircleColor();
+        this._updateCircleImage();
+        this._updateCircleLabel();
+        this._renderCirles();
+        return this;
+      };
+      Jello2.prototype.updateWidthHeight = function() {
+        this.width = this.container.offsetWidth;
+        this.height = this.container.offsetHeight;
+        this._initLayoutManager();
+        return this;
+      };
+      Jello2.prototype.labelBy = function(dim) {
+        this.options.labelByDim = this._sanitizeDimension(dim);
+        return this;
+      };
+      Jello2.prototype.colorBy = function(dim) {
+        this.options.colorByDim = this._sanitizeDimension(dim);
+        if (this.options.colorByDim != null) {
+          this.options.displayImageByDim = null;
+        }
+        return this;
+      };
+      Jello2.prototype.sizeBy = function(dim) {
+        this.options.sizeByDim = this._sanitizeDimension(dim);
+        return this;
+      };
+      Jello2.prototype.clusterBy = function(dim) {
+        this.options.clusterByDim = this._sanitizeDimension(dim);
+        if (dim === null) {
+          return this;
+        }
+        this.options.layout = "cluster";
+        return this;
+      };
+      Jello2.prototype.filterBy = function(filters) {
+        var sanitized = {};
+        for (var dim in filters) {
+          var sanitizedDim = this._sanitizeDimension(dim);
+          if (sanitizedDim !== null) {
+            sanitized[dim] = filters[dim];
+          }
+        }
+        this.options.filters = Object.keys(sanitized).length > 0 ? sanitized : null;
+        return this;
+      };
+      Jello2.prototype.sortBy = function(setting) {
+        var dim = (setting != null ? setting : { dim: null }).dim;
+        var sanitized = this._sanitizeDimension(dim);
+        if (sanitized != null) {
+          this.options.sortSetting = sanitized !== null ? setting : null;
+          this.options.layout = "sort";
+        }
+        return this;
+      };
+      Jello2.prototype.plotBy = function(setting) {
+        var _a, _b, _c, _d;
+        var xDim = (_b = (_a = setting === null || setting === void 0 ? void 0 : setting.x) === null || _a === void 0 ? void 0 : _a.dim) !== null && _b !== void 0 ? _b : null;
+        var yDim = (_d = (_c = setting === null || setting === void 0 ? void 0 : setting.y) === null || _c === void 0 ? void 0 : _c.dim) !== null && _d !== void 0 ? _d : null;
+        var xSanitized = this._sanitizeDimension(xDim);
+        var ySanitized = this._sanitizeDimension(yDim);
+        if (xSanitized != null && ySanitized != null && typeof this.data[0][xSanitized] === "number" && typeof this.data[0][ySanitized] === "number") {
+          this.options.plotSetting = setting;
+          this.options.layout = "plot";
+        } else {
+          console.log("plotBy will no take effect because some of the dimensions are not available or the values for the dimension are not numbers.");
+        }
+        return this;
+      };
+      Jello2.prototype.groupBy = function(setting) {
+        if (setting === null) {
+          this.options.groupBySetting = null;
+          this.options.layout = "default";
+          return this;
+        }
+        var sanitized = this._sanitizeDimension(setting.dim);
+        if (sanitized != null) {
+          this.options.groupBySetting = setting;
+          this.options.layout = "group by";
+        }
+        return this;
+      };
+      Jello2.prototype.displayImageBy = function(dim) {
+        this.options.displayImageByDim = this._sanitizeDimension(dim);
+        if (this.options.displayImageByDim != null) {
+          this.options.colorByDim = null;
+        }
+        return this;
+      };
+      Jello2.prototype.reset = function() {
+        this.options = __assign3({}, this.originalOptions);
+        this._initLayoutManager();
+        return this;
+      };
+      Jello2.prototype._initLayoutManager = function() {
+        this.layoutManager = {
+          "default": new DefaultLayout_default(this.data, this.options, this.width, this.height),
+          "cluster": new ClusterLayout_default(this.data, this.options, this.width, this.height),
+          "sort": new SortLayout_default(this.data, this.options, this.width, this.height),
+          "plot": new PlotLayout_default(this.data, this.options, this.width, this.height),
+          "group by": new GroupByLayout_default(this.data, this.options, this.width, this.height)
+        };
+      };
+      Jello2.prototype._renderCirles = function() {
+        var _this = this;
+        if (!Object.keys(this.circles).length) {
+          this.data.forEach(function(entry) {
+            var _a2 = _this.cirlcesProperty[entry.id], _data = _a2._data, x2 = _a2.x, y2 = _a2.y, r2 = _a2.r, display2 = _a2.display;
+            var radius = display2 ? r2 : 0;
+            var circle = createCircle(_data, x2, y2, radius, _this.options.onClick, _this.options.onMouseover, _this.options.onMouseout);
+            _this.circleDiv.appendChild(circle);
+            _this.circles[entry.id] = circle;
+          });
+        }
+        for (var id2 in this.circles) {
+          var _a = this.cirlcesProperty[id2], x = _a.x, y = _a.y, r = _a.r, color2 = _a.color, display = _a.display, imgURL = _a.imgURL, label = _a.label;
+          var size = display ? r * 2 : 0;
+          var opacity = color2 != null ? 0.7 : 0;
+          var bg = this.options.displayImageByDim != null ? " url(" + imgURL + ") no-repeat" : color2;
+          this.circles[id2].style.background = bg;
+          this.circles[id2].style.backgroundSize = "cover";
+          this.circles[id2].innerHTML = display && label != null ? label : "";
+          anime_es_default({
+            targets: [this.circles[id2]],
+            easing: "easeInOutSine",
+            left: x - r,
+            top: y - r,
+            width: size,
+            height: size,
+            duration: 700,
+            opacity
+          });
+        }
+      };
+      Jello2.prototype._sanitizeDimension = function(dim) {
+        if (dim != null && this.data && this.data.length) {
+          if (dim in this.data[0]) {
+            return dim;
+          } else {
+            console.log(dim + " is not valid property. It will not take any effect.");
+            return null;
+          }
+        }
+        return null;
+      };
+      Jello2.prototype._updateCircleLayout = function() {
+        var layout = this.options.layout || "default";
+        var _a = this.layoutManager[layout].calculateCirclesLayout(), layoutProperties = _a.layoutProperties, additionalVisual = _a.additionalVisual;
+        for (var id2 in layoutProperties) {
+          if (id2 in this.cirlcesProperty) {
+            this.cirlcesProperty[id2].x = layoutProperties[id2].x;
+            this.cirlcesProperty[id2].y = layoutProperties[id2].y;
+            this.cirlcesProperty[id2].r = layoutProperties[id2].r;
+            this.cirlcesProperty[id2].display = layoutProperties[id2].display;
+          }
+        }
+        if (additionalVisual !== null) {
+          this.additionalVisualDiv.appendChild(additionalVisual);
+        }
+      };
+      Jello2.prototype._updateCircleColor = function() {
+        var _this = this;
+        if (this.options.colorByDim == null) {
+          this.data.forEach(function(entry) {
+            _this.cirlcesProperty[entry.id].color = DEFAULT_COLOR;
+          });
+        } else {
+          var colorByDim_1 = this.options.colorByDim;
+          var distinctValues = __spreadArray2([], new Set(this.data.map(function(entry) {
+            return entry[colorByDim_1];
+          })));
+          this.data.map(function(entry) {
+            return entry[colorByDim_1];
+          });
+          var colorPicker_1 = ordinal().domain(distinctValues).range(Set3_default);
+          this.data.forEach(function(entry) {
+            _this.cirlcesProperty[entry.id].color = colorPicker_1(entry[colorByDim_1]);
+          });
+        }
+      };
+      Jello2.prototype._updateCircleImage = function() {
+        var _this = this;
+        if (this.options.displayImageByDim != null) {
+          var dim_1 = this.options.displayImageByDim;
+          this.data.forEach(function(entry) {
+            _this.cirlcesProperty[entry.id].imgURL = entry[dim_1];
+          });
+        } else {
+          this.data.forEach(function(entry) {
+            _this.cirlcesProperty[entry.id].imgURL = null;
+          });
+        }
+      };
+      Jello2.prototype._updateCircleLabel = function() {
+        var _this = this;
+        if (this.options.labelByDim != null) {
+          var dim_2 = this.options.labelByDim;
+          this.data.forEach(function(entry) {
+            _this.cirlcesProperty[entry.id].label = entry[dim_2];
+          });
+        } else {
+          this.data.forEach(function(entry) {
+            _this.cirlcesProperty[entry.id].label = null;
+          });
+        }
+      };
+      return Jello2;
+    }()
+  );
   var index_default = Jello;
   return __toCommonJS(index_exports);
 })();
