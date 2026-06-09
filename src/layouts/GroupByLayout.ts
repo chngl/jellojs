@@ -183,6 +183,30 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
 
     const barHeight = yScale.bandwidth();
 
+    // Compute circle pack positions for transition start
+    const packLayout = pack()
+      .size([this.width, this.height])
+      .padding(20);
+
+    const rootData = {
+      children: groupEntries.map(g => ({
+        id: g.key,
+        value: Math.max(g.value, 0.001),
+      }))
+    };
+
+    // @ts-ignore
+    const rootNode = hierarchy(rootData);
+    rootNode.sum((d: any) => d.value);
+    packLayout(rootNode);
+
+    const circlePositions: {[key: string]: {x: number, y: number, r: number}} = {};
+    if (rootNode.children) {
+      rootNode.children.forEach((node: any) => {
+        circlePositions[node.data.id] = { x: node.x, y: node.y, r: node.r };
+      });
+    }
+
     const container = document.createElement('div');
     container.style.position = 'relative';
     container.style.width = this.width + 'px';
@@ -192,7 +216,29 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
       const barWidth = xScale(g.value);
       const barX = padding.left;
       const barY = padding.top + (yScale(g.key) || 0);
+      const cp = circlePositions[g.key];
 
+      // Transitioning circle: starts at pack position, moves to bar row, fades out
+      if (cp) {
+        const circle = createCircle(null, cp.x, cp.y, cp.r);
+        circle.style.background = DEFAULT_COLOR;
+        circle.style.opacity = '0.7';
+        container.appendChild(circle);
+
+        anime({
+          targets: [circle],
+          easing: 'easeInOutSine',
+          left: barX,
+          top: barY,
+          width: barHeight,
+          height: barHeight,
+          borderRadius: '50%',
+          opacity: 0,
+          duration: 700,
+        });
+      }
+
+      // Bar element: starts at zero width, grows to full width
       const bar = document.createElement('div');
       bar.setAttribute('style', [
         'position: absolute',
@@ -201,7 +247,6 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
         'width: 0px',
         'height: ' + barHeight + 'px',
         'background: ' + DEFAULT_COLOR,
-        'border-radius: 50%',
         'opacity: 0',
         'box-sizing: border-box',
       ].join('; '));
@@ -211,9 +256,9 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
         targets: [bar],
         easing: 'easeInOutSine',
         width: barWidth,
-        borderRadius: 0,
         opacity: 0.7,
         duration: 700,
+        delay: 300,
       });
 
       const label = document.createElement('div');
@@ -242,6 +287,7 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
         easing: 'easeInOutSine',
         opacity: 1,
         duration: 700,
+        delay: 300,
       });
 
       const valueLabel = document.createElement('div');
@@ -265,6 +311,7 @@ export default class GroupByLayout<T extends ObjectWithID> extends LayoutBase<T>
         easing: 'easeInOutSine',
         opacity: 1,
         duration: 700,
+        delay: 300,
       });
     });
 
